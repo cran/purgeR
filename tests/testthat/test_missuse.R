@@ -1,0 +1,15 @@
+library(purgeR)
+context("Package Missuse")
+
+data(arrui)
+testthat::test_that("Bad usage that may break functions or the R session", {
+  testthat::expect_error(purgeR::ped_rename(arrui$id), "Pedigree must be of class 'data.frame'")
+  testthat::expect_error(arrui %>% pop_Ng(reference = "target", nboot = -200, seed = 1234.5678) %>% .$Ng, "Expected a positive integer argument value.")
+  testthat::expect_equal(arrui %>% pop_Ng(reference = "target", nboot = 200, seed = 1234) %>% .$Ng, 1.023436, tolerance = 1e-5)
+  testthat::expect_error(arrui %>% ip_Fij(mode = "custom", ancestors = "1"), "'ancestors' column needs to be of type integer")
+  testthat::expect_error(arrui %>% ip_Fij(mode = "custom", ancestors = as.integer(c(1,1000))), "All ancestors must have a valid id")
+  testthat::expect_error(arrui %>% ip_F() %>% ped_maternal(value_from = 1234, name_to = "Fdam"), "Column not found: 1234")
+  testthat::expect_error(arrui %>% ip_F() %>% ped_maternal(value_from = rep("K",1000), name_to = "Fdam"), "Expected one column name, but more detected")
+  testthat::expect_error(arrui %>% ip_F() %>% ped_maternal(value_from = "Fi", name_to = "Fdam", use_dam = c(TRUE, FALSE)), "Expected boolean of length 1")
+  testthat::expect_error(arrui %>% ip_F() %>% ped_maternal(value_from = "Fi", name_to = "R", use_dam = TRUE, set_na = c("UNK", "Unk")), "Expected value of length ")
+})

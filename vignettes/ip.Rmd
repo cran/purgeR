@@ -1,0 +1,284 @@
+---
+title: "Inbreeding and Purging Estimates"
+author: "Eugenio López-Cortegano"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Inbreeding and Purging Estimates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, echo=FALSE}
+library(caret)
+library(coda)
+library(e1071)
+library(grid)
+library(purgeR)
+library(magrittr)
+library(ggplot2)
+library(gtable)
+library(plyr)
+library(purrr)
+library(stringr)
+```
+
+This vignette is provides a practical guide on how to use functions in purgeR to estimate parameters related to inbreeding and purging using estimates obtained with functions from purgeR. For illustrative purposes, we will estimate here the magnitude of the inbreeding load ($B$) and the purging coefficient ($d$) using different approaches. Note however that this guide is not exhaustive. Different methods to those applied here could be used to estimate these parameters, as well as alternative models of inbreeding and purging. For example, purging models could be based on ancestral inbreeding (e.g. Boakes et al. 2007) or the individual reduction in inbreeding load (e.g. Gulisija and Crow 2007). If you haven't, read the 'purgeR-tutorial' vignette for a more concise and complete introduction to functions in purgeR.
+
+Below, we assume Morton et al. (1956) multiplicative model of fitness to fit and predict inbreeding and purging models, and some examples are used in sections below. Under this model, the expected fitness ($E(W)$) can be calculated as:
+
+$$E(W) = W_{0} \cdot e^{BF+AX}$$
+Where $B$ is the inbreeding depression rate, $F$ is the inbreeding coefficient, and $A$ and $X$ represent additional regression coefficient and predictor terms associated with other possible factors affecting fitness (e.g. environmental effects). 
+
+### Estimating inbreeding depression
+
+Using logarithms, the expression above becomes the equation of a line, which can be solved by simple linear regression:
+  
+$$log[E(W)] = log(W_{0}) + BF + AX$$
+Taking Dama gazelle (*N. dama*) pedigree as an example, we could use this model to estimate the inbreeding depression rate on female productivity as follows:
+  
+```{r estimate_inbreeding_depression_prod}
+data(dama)
+dama %>%
+  purgeR::ip_F() %>%
+  dplyr::filter(prod > 0) %>%
+  stats::lm(formula = log(prod) ~ Fi)
+```
+
+Note however the limitation that values of fitness equal to zero have to be removed. This can be a problem for binary fitness traits such as survival. Fortunately, R provides a fairly complete set of statistic methods, and a logistic regression approach could be used in this case:
+  
+```{r estimate_inbreeding_depression_surv}
+dama %>%
+  purgeR::ip_F() %>%
+  stats::glm(formula = survival15 ~ Fi, family = "binomial")
+```
+
+### Working with more complex models
+
+The same principle can be applied to more complex models that include terms associated to inbreeding (like $F$ in previous examples), but also others associated to genetic purging, and environmental factors. Similarly, different statistic methods can be applied, making the most of R extensive package library.
+
+One remarkable example is making use of the Classification And REgression Training (`caret`) R package. Providing more complex and exhaustive examples using this library falls out of the scope of this tutorial, but as a naive example, a regularized logistic regression method is used below to fit a training set with *N. dama* data, and estimate regression coefficient terms on a model including standard and ancestral inbreeding as genetic factors, plus year of birth and period of management as environmental factors. The confusion matrix shows that the model has little predictive value though.
+
+```{r estimate_with_caret, message=FALSE}
+set.seed(1234)
+vars <- c("survival15", "Fi", "Fa", "yob", "pom")
+df <- dama %>%
+  purgeR::ip_F() %>% 
+  purgeR::ip_Fa(Fcol = "Fi") %>%
+  dplyr::select(tidyselect::all_of(vars)) %>%
+  stats::na.exclude()
+trainIndex <- caret::createDataPartition(df$survival15, p = 0.75, list = FALSE, times = 1)
+df_train <-df[trainIndex, ]
+df_test <-df[-trainIndex, ]
+m <- caret::train(factor(survival15) ~., data = df_test, method = "glmnet")
+stats::predict(m$finalModel, type = "coefficients", s = m$bestTune$lambda)
+stats::predict(m, df_test) %>%
+  caret::confusionMatrix(reference = factor(df_test$survival15))
+```
+
+### Estimating the purging coefficient: Regression examples
+
+Models based on purged inbreeding ($g$), require a value of the purging coefficient ($d$) to be estimated or assumed. In this case, it is possible to iterate over a range of candidate values of $d$, and fit the different regression model alternatives, to finally retain the one providing the best fit. Code below shows how to do this assuming logistic regression for early survival in *N. dama* data:
+  
+```{r estimate_purging_coefficient_linear}
+d_values <- seq(from = 0.0, to = 0.5, by = 0.01)
+models <- seq_along(d_values) %>%
+  purrr::map(~ip_g(ped = dama, d = d_values[[.]])) %>%
+  purrr::map(~dplyr::select(.data = ., survival15, tidyselect::starts_with("g"))) %>% 
+  purrr::map(~glm(formula = survival15 ~ ., family = binomial(link = "probit"), data = .))
+aic_values <- models %>%
+  purrr::map(summary) %>%
+  purrr::map_dbl("aic")
+aic_best <- aic_values %>% min()
+models[[which(aic_values == aic_best)]] %>% summary
+```
+
+The estimated purging coefficient $d = `r d_values[[which(aic_values == aic_best)]]`$ here is close to that obtained by López-Cortegano et al. (2021) using a heuristic approach, but it is a convenient example because it reminds of some of the limitations of using transformations on Morton's model, e.g. due to Jensen's inequality when linearized with logarithms (see details in García-Dorado et al. 2016). Thus, it is better practice to fit this model in the original scale of the data, using exponential, non-linear regression methods. This use is illustrated below using R `nls` function:
+  
+```{r estimate_purging_coefficient_nonlinear}
+set.seed(1234)
+d_values <- seq(from = 0.0, to = 0.5, by = 0.01)
+start_values <- seq_along(d_values) %>%
+  map(~ip_g(ped = dama, d = d_values[[.]])) %>%
+  map(~dplyr::select(.data = ., survival15, tidyselect::starts_with("g"))) %>% 
+  map(~glm(formula = survival15 ~ ., family = binomial(link = "probit"), data = .)) %>%
+  map("coefficients") %>%
+  map(~set_names(x = ., nm = c("W0", "B")))
+models <- seq_along(d_values) %>%
+  map(~ip_g(ped = dama, d = d_values[[.]])) %>%
+  map(~dplyr::rename_with(.data = .,
+                          .fn = ~str_replace(., pattern = "g.*", replacement = "g"),
+                          .cols = tidyselect::starts_with("g"))) %>% 
+  map(~dplyr::select(.data = ., survival15, g)) %>% 
+  map2(start_values, ~nls(formula = survival15 ~ W0 * exp(B * g), start = .y, data = .x))
+
+aic_values <- models %>% map_dbl(AIC)
+aic_best <- aic_values %>% min()
+models[[which(aic_values == aic_best)]] %>% summary
+d_values[which(aic_values == aic_best)]
+```
+
+This new estimate avoids problems derived from scale transformation. For example, the intercept (`r plyr::round_any(coefficients(models[[which(aic_values == aic_best)]])[1], 0.001)`) representing the expected fitness of non-inbred individuals is closer to the actual fitness of non-inbred individuals in the pedigree (`r plyr::round_any(dama %>% purgeR::ip_F() %>% dplyr::filter(!is.na(survival15), F==0) %>% .$survival15 %>% mean(), 0.001)`). Similarly, the estimate of the inbreeding depression rate ($B = `r plyr::round_any(coefficients(models[[which(aic_values == aic_best)]])[2], 0.001)`$) and the purging coefficient ($d = `r d_values[which(aic_values == aic_best)]`$) are closer to previously estimated values in this population.
+
+### Estimating the purging coefficient: Bayesian example
+
+Above we have used regression methods to obtain maximum likelihood estimates of different inbreeding and purging parameters, but we could also take a Bayesian approach using R functions, and ask about the posterior distribution of some of these parameters. Below, we focus on the re-estimation of the inbreeding load and the purging coefficient using Approximate Bayesian Computation (ABC). Again, this is intended to provide an example of use, and we warn that the summary statistic used as well as the threshold value have not been extensively tested. A good review on ABC methods and best practices can be found in Beaumont (2010).
+
+```{r estimate_purging_coefficient_abc, eval=FALSE}
+# Initialize observed data
+data(dama)
+dama <- dama %>% ip_F()
+w0 <- 0.89658 # assumed fitness for non-inbred individuals, from regression above
+
+# We use fitness itself as summary statistic (So)
+# In the simulated data, fitness (Ss) is computed using Morton et al. model
+# Distance between So and Ss [d(So, Ss)] is estimated by means of the residual sum of squares (RSS)
+get_RSS <- function(data, par) {
+  data %>%
+    purgeR::ip_g(d = par[1], Fcol = "Fi") %>% 
+    rename_with(.data = ., .fn = ~str_replace(., pattern = "g.*", replacement = "g")) %>%
+    dplyr::mutate(Ew = w0 * exp(-par[2] * g)) %>% 
+    dplyr::filter(!is.na(survival15)) %$%
+    `-`(survival15-Ew) %>%
+    `^`(2) %>%
+    sum()
+}
+
+# Acceptance rule for d(so, Ss) given a threshold
+ABC_accept <- function(data, par, threshold){
+  if (par[1] < 0) return(FALSE)
+  if (par[1] > 0.5) return(FALSE)
+  if (par[2] < 0) return(FALSE) 
+  RSS <- get_RSS(data, par)
+  if(RSS < threshold) return(TRUE) else return(FALSE)
+}
+
+# Run MCMC ABC
+MCMC_ABC <- function(data, niter, nburn, nthin, threshold) {
+  nsamples <- (niter-nburn)/nthin
+  chain <- array(dim = c(nsamples, 3)) # d, delta and RSS
+  sample <- c(0.0, 0.0, get_RSS(data, c(0.0, 0.0)))
+  sample_idx <- 1
+  for (i in 1:niter) {
+    d_test <- runif(1, min = 0, max = 0.5)
+    delta_test <- runif(1, min = 0, max = 15)
+    sample_test <- c(d_test, delta_test, get_RSS(data, c(d_test, delta_test)))
+    
+    if (ABC_accept(data, sample_test, threshold)) sample <- sample_test
+    if ((i > nburn) & (i %% nthin == 0)) {
+      print(sample_idx)
+      chain[sample_idx,] <- sample
+      sample_idx <- sample_idx + 1
+    }
+  }
+  return(coda::mcmc(chain, start = nburn, thin = nthin))
+}
+
+# Get the posterior
+set.seed(1234)
+# We set an arbitrary threshold taking the RSS from the best fit
+# and allowing an increase in the simulations up to an 0.5% in value
+t <- get_RSS(dama, c(0.22, 1.11))
+t = t*1.005
+# Get the posterior distribution for the purging coefficient and delta
+# A third column with the RSS values is also returned
+posterior <- MCMC_ABC(dama, niter = 5100, nburn = 100, nthin = 50, threshold = t*1.005)
+```
+
+We could now make some basic checks on the MCMC chain generated, including convergence and auto-correlation test:
+
+```{r read_chain, include=FALSE}
+posterior <- system.file("extdata", "posterior.rda", package = "purgeR")
+posterior <- base::readRDS(posterior)
+```
+
+```{r save_old_par, include=FALSE}
+opar <- par()
+```
+
+```{r abc_tests, out.width = '300px', out.height = '300px', fig.align = 'center'}
+par(mar = c(1, 1, 1, 1))
+posterior[, 1:2] %>% base::plot()
+posterior[, 1:2] %>% coda::heidel.diag()
+posterior[, 1:2] %>% coda::autocorr.diag()
+posterior[, 1:2] %>% coda::effectiveSize()
+```
+
+```{r reset_old_par, include=FALSE}
+par(opar)
+```
+
+We see that the generated MCMC chain passes Heidelberger and Welch's convergence test, that auto-correlation is low given the thinning interval used, and that the effective number of samples is close to 1000.
+
+Finally, the joint posterior distribution of the two estimated parameters, as well as their marginal distributions:
+
+```{r abc_plot, out.width = '250px', out.height = '250px', fig.align = 'center'}
+df <- data.frame(posterior)
+colnames(df) <- c("d", "delta", "RSS")
+# Joint posterior distribution
+p1 = ggplot(data = df) +
+  geom_point(aes(x=d, y=delta)) +
+  geom_density_2d_filled(aes(x=d, y=delta), alpha = 0.5) +
+  geom_point(x=0.22, y=1.11, size=3, shape = 4) +
+  scale_x_continuous(expression(paste("Purging coefficient (", italic(d), ")", sep = "")),
+                     limits = c(0, 0.5)) +
+  scale_y_continuous(expression(paste("Inbreeding load (", italic(delta), ")", sep = "")),
+                     limits = c(min(df$delta), max(df$delta))) +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(size = 0.1),
+        axis.title = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        legend.position = "none")
+
+# Marginal distributions
+p2 = ggplot(data=df) +
+  geom_density(aes(x=d), fill = "grey") +
+  coord_cartesian(x = c(0, 0.5), y = c(0.7, 2.7)) +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(size = 0.1),
+        axis.text = element_text(size = 8),)
+p3 = ggplot(data=df) +
+  geom_density(aes(x=delta), fill = "grey") +
+  coord_flip(c(min(df$delta), max(df$delta)+0.3)) +
+  theme(panel.background = element_blank(),
+        axis.line = element_line(size = 0.1),
+        axis.text = element_text(size = 8),)
+
+# Build a grid plot from previous ones
+gt <- ggplot_gtable(ggplot_build(p1))
+gt2 <- ggplot_gtable(ggplot_build(p2))
+gt3 <- ggplot_gtable(ggplot_build(p3))
+
+gt1 <- gtable:::gtable_add_cols(gt, unit(0.3, "null"), pos = -1)
+gt1 <- gtable:::gtable_add_rows(gt1, unit(0.3, "null"), pos = 0)
+gt1 <- gtable:::gtable_add_grob(gt1, gt2$grobs[[which(gt2$layout$name == "panel")]],
+                                1, 5, 1, 5)
+gt1 <- gtable:::gtable_add_grob(gt1, gt2$grobs[[which(gt2$layout$name == "axis-l")]],
+                                1, 4, 1, 4, clip = "off")
+gt1 <- gtable:::gtable_add_grob(gt1, gt3$grobs[[which(gt3$layout$name == "panel")]],
+                                8, 10, 6, 10)
+gt1 <- gtable:::gtable_add_grob(gt1, gt3$grobs[[which(gt3$layout$name == "axis-b")]],
+                                11, 10, 9, 10, clip = "off")
+
+grid::grid.newpage()
+grid::grid.draw(gt1)
+```
+
+The plot above shows that the maximum likelihood estimate of $B$ and $d$ obtained above (marked with an **X**) falls within the joint distribution of the two parameters as expected. However, while the distribution of $d$ covers almost all the possible range of values [0.0, 0.5], we have better evidence that $B$ takes values below $B<2$ which can be considered a low value in agreement with previous estimates of this parameter in wild populations (O'Grady et al. 2006). In addition, we observe a linear association between $B$ and $d$, suggesting that if the actual purging coefficient estimated in the population were below the assumed maximum likelihood estimate of 0.22, the inbreeding load estimate would also be lower, indicating in all cases that generally the inbreeding load is expected to be largely purged in this population, and that fitness depression will be much lower than expected disregarding purging.
+
+## References
+
+- Beaumont MA. 2010. Approximate Bayesian computation in evolution and ecology. Annual Review of Ecology, Evolution, and Systematics 41: 379-406.
+- Boakes EH et al. 2007. An investigation of inbreeding depression and purging in captive pedigreed populations. Heredity 98: 172-182.
+- García-Dorado A. 2016. Predictive model and software for inbreeding-purging analysis of pedigreed populations. G3 6(11): 3593–3601.
+- Gulisija D and Crow JF. 2007. Inferring purging from pedigree data. Evolution 65(1): 1043-1051.
+- López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Pending revision*.
+- Morton NE et al. 1956 An estimate of the mutational damage in man from data on consanguineous marriages. Proceedings of the National Academy of Sciences of the United States of America 42: 855-863.
+- O’Grady JJ et al.2006. Realistic levels of inbreeding depression strongly affect extinction risk in wild populations. Biological Conservation 133: 42-51.

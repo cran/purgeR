@@ -1,0 +1,62 @@
+#' purgeR: Estimation of inbreeding-purging genetic parameters in pedigreed populations
+#'
+#' The \pkg{purgeR} package includes functions for the computation of parameters related to inbreeding and genetic purging in pedigreed populations, including standard, ancestral and purged inbreeding coefficients, among other measures of inbreeding and purging. In addition, functions to compute the effective population size and other parameters relevant to population genetics and structure are included.
+#'
+#' A complete user's guide with examples is provided as vignettes, introducing functions in this package and providing examples of use. Navigate these vignettes from R with:
+#'
+#'\code{browseVignettes("purgeR")}
+#'
+#'There are currently two vignettes available:
+#'
+#'\itemize{
+#'    \item{\strong{purgeR-tutorial}}: A complete overview of all functions in the package, including easy to follow examples.
+#'    \item{\strong{ip}}: A more advanced guide showing examples of inbreeding purging analyses.
+#'}
+#'
+#' @section Functions:
+#' \itemize{
+#' \item{\strong{Preprocessing}}{
+#'   \item{\code{\link{ped_rename}} - } Rename individuals in a pedigree from 1 to N
+#'   \item{\code{\link{ped_clean}} - } Remove individuals not used for purging analyses
+#'   \item{\code{\link{ped_maternal}} - }{Maternal effects}
+#' }
+#' \item{\strong{Inbreeding and purging}}{
+#'   \item{\code{\link{ip_F}} - }{Inbreeding coefficient}
+#'   \item{\code{\link{ip_Fa}} - }{Ancestral inbreeding coefficient}
+#'   \item{\code{\link{ip_Fij}} - }{Partial inbreeding coefficient}
+#'   \item{\code{\link{ip_g}} - }{Purged inbreeding coefficient}
+#'   \item{\code{\link{ip_op}} - }{Opportunity of purging}
+#'   \item{\code{\link{exp_F}} - }{Expected inbreeding coefficient}
+#'   \item{\code{\link{exp_Fa}} - }{Expected ancestral inbreeding coefficient}
+#'   \item{\code{\link{exp_g}} - }{Expected purged inbreeding coefficient}
+#' }
+#' \item{\strong{Population parameters}}{
+#'   \item{\code{\link{pop_hwd}} - }{Deviation from Hardy-Weinberg equilibrium}
+#'   \item{\code{\link{pop_t}} - }{Number of equivalent complete generations}
+#'   \item{\code{\link{pop_Ne}} - }{Effective population size}
+#'   \item{\code{\link{pop_Nancestors}} - }{Population founders and ancestors}
+#'   \item{\code{\link{pop_Na}} - }{Total number of ancestors}
+#'   \item{\code{\link{pop_Nae}} - }{Effective number of ancestors}
+#'   \item{\code{\link{pop_Nf}} - }{Total number of founders}
+#'   \item{\code{\link{pop_Nfe}} - }{Effective number of founders}
+#'   \item{\code{\link{pop_Ng}} - }{Number of founder genome equivalents}
+#' }
+#' \item{\strong{Fitness}}{
+#'   \item{\code{\link{w_grandoffspring}} - }{Grandoffspring}
+#'   \item{\code{\link{w_offspring}} - }{Offspring}
+#'   \item{\code{\link{w_reproductive_value}} - }{Reproductive value}
+#' }
+#' }
+#' @docType package
+#' @name purgeR
+#' @aliases purgeR-package
+#' @author Eugenio López-Cortegano <elcortegano@@gmail.com> (\href{https://orcid.org/0000-0001-6914-6305/}{ORCID})
+#' @encoding UTF-8
+#' @references López-Cortegano E. 2021. purgeR: Inbreeding and purging in pedigreed populations. *Pending revision*.
+#' @seealso
+#' Source code is available via the GitLab repository at \url{https://gitlab.com/elcortegano/purgeR/}. Users are encouraged to report bugs, request features, and contribute code to this project.
+#'
+#' Some users might find useful the C++ software PURGd, which computes inbreeding-purging parameters and follow-up statistical analyses: \url{https://gitlab.com/elcortegano/PURGd/}.
+#' @useDynLib purgeR, .registration = TRUE
+#' @importFrom Rcpp evalCpp
+NULL
