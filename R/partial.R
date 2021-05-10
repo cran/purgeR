@@ -32,7 +32,7 @@
 #' 
 #' # Compute partial inbreeding relative to an arbitrary ancestor with id = 6
 #' anc <- as.integer(c(6))
-#' ip_Fij(arrui, mode = "custom", ancestors = anc)
+#' m <- ip_Fij(arrui, mode = "custom", ancestors = anc)
 #' @export
 ip_Fij <- function(ped, mode = "founders", ancestors = NULL, Fcol = NULL, ncores = 1L) {
   

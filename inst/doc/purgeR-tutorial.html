@@ -12,7 +12,7 @@
 
 <meta name="author" content="Eugenio López-Cortegano" />
 
-<meta name="date" content="2021-04-29" />
+<meta name="date" content="2021-05-02" />
 
 <title>purgeR tutorial</title>
 
@@ -318,7 +318,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">purgeR tutorial</h1>
 <h4 class="author">Eugenio López-Cortegano</h4>
-<h4 class="date">2021-04-29</h4>
+<h4 class="date">2021-05-02</h4>
 
 
 
@@ -645,10 +645,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb14-4" data-line-number="4">     <span class="st">&quot;N. dama&quot;</span> =<span class="st"> </span>dama) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb14-5" data-line-number="5"><span class="st">  </span>purrr<span class="op">::</span><span class="kw">map_dfr</span>(<span class="op">~</span><span class="st"> </span><span class="kw">pop_Nancestors</span>(., <span class="dt">reference =</span> <span class="st">&quot;target&quot;</span>, <span class="dt">seed =</span> <span class="dv">1234</span>), <span class="dt">.id =</span> <span class="st">&quot;Species&quot;</span>)</a>
 <a class="sourceLine" id="cb14-6" data-line-number="6"><span class="co">#&gt;      Species  Nr Nf       Nfe  Na       Nae       Ng     se_Ng</span></a>
-<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt; 1  A. lervia  80  2  1.769424  63  1.097781 1.034102 0.2468827</span></a>
-<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co">#&gt; 2 G. cuvieri 176  4  3.583086 249  3.325158 2.002087 0.4601456</span></a>
+<a class="sourceLine" id="cb14-7" data-line-number="7"><span class="co">#&gt; 1  A. lervia  80  2  1.769424  63  1.769424 1.034102 0.2468827</span></a>
+<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="co">#&gt; 2 G. cuvieri 176  4  3.583086 249  3.583086 2.002087 0.4601456</span></a>
 <a class="sourceLine" id="cb14-9" data-line-number="9"><span class="co">#&gt; 3  G. dorcas 283 20 13.386468 400 12.990604 5.817682 1.0154111</span></a>
-<a class="sourceLine" id="cb14-10" data-line-number="10"><span class="co">#&gt; 4    N. dama 251  4  2.614750 349  2.328626 1.868039 0.4506204</span></a></code></pre></div>
+<a class="sourceLine" id="cb14-10" data-line-number="10"><span class="co">#&gt; 4    N. dama 251  4  2.614750 349  2.614750 1.868039 0.4506204</span></a></code></pre></div>
 <p>Convenience functions are also available, named after the parameters they estimate. For example, the function <code>pop_Ng</code> will just estimate the number of founder genome equivalents, and return that value as a numeric value. Similarly, <code>pop_Nae</code> will only estimate the effective number of ancestors, and so on. See more examples in <code>?pop_Nancestors</code>.</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">atlas <span class="op">%&gt;%</span><span class="st"> </span>purgeR<span class="op">::</span><span class="kw">pop_Ng</span>(<span class="dt">reference =</span> <span class="st">&quot;target&quot;</span>, <span class="dt">seed =</span> <span class="dv">1234</span>)</a>
 <a class="sourceLine" id="cb15-2" data-line-number="2"><span class="co">#&gt; $Ng</span></a>
@@ -657,7 +657,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb15-5" data-line-number="5"><span class="co">#&gt; $se_Ng</span></a>
 <a class="sourceLine" id="cb15-6" data-line-number="6"><span class="co">#&gt; [1] 0.4601456</span></a>
 <a class="sourceLine" id="cb15-7" data-line-number="7">atlas <span class="op">%&gt;%</span><span class="st"> </span>purgeR<span class="op">::</span><span class="kw">pop_Nae</span>(<span class="dt">reference =</span> <span class="st">&quot;target&quot;</span>)</a>
-<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co">#&gt; [1] 3.325158</span></a></code></pre></div>
+<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="co">#&gt; [1] 3.583086</span></a></code></pre></div>
 </div>
 <div id="hardy-weinberg-deviation" class="section level3">
 <h3>Hardy-Weinberg deviation</h3>

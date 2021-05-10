@@ -27,9 +27,10 @@ A genedrop approach is included to compute unbiased estimates of \emph{Fa} (Baum
 }
 \examples{
 data(dama)
-ip_Fa(dama) # Compute F on the go (won't be kept in the pedigree).
+# dama <- ip_Fa(dama) # Compute F on the go (won't be kept in the pedigree).
 dama <- ip_F(dama)
 dama <- ip_Fa(dama, Fcol = 'Fi') # If F is computed in advance.
+tail(dama)
 }
 \references{
 \itemize{

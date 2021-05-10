@@ -38,8 +38,8 @@ df <- dama %>%
   dplyr::select(tidyselect::all_of(vars)) %>%
   stats::na.exclude()
 trainIndex <- caret::createDataPartition(df$survival15, p = 0.75, list = FALSE, times = 1)
-df_train <-df[trainIndex, ]
-df_test <-df[-trainIndex, ]
+df_train <- df[trainIndex, ]
+df_test <- df[-trainIndex, ]
 m <- caret::train(factor(survival15) ~., data = df_test, method = "glmnet")
 stats::predict(m$finalModel, type = "coefficients", s = m$bestTune$lambda)
 stats::predict(m, df_test) %>%
@@ -48,9 +48,8 @@ stats::predict(m, df_test) %>%
 ## ----estimate_purging_coefficient_linear--------------------------------------
 d_values <- seq(from = 0.0, to = 0.5, by = 0.01)
 models <- seq_along(d_values) %>%
-  purrr::map(~ip_g(ped = dama, d = d_values[[.]])) %>%
-  purrr::map(~dplyr::select(.data = ., survival15, tidyselect::starts_with("g"))) %>% 
-  purrr::map(~glm(formula = survival15 ~ ., family = binomial(link = "probit"), data = .))
+  purrr::map(~ip_g(ped = dama, d = d_values[[.]], name_to = "g")) %>%
+  purrr::map(~glm(formula = survival15 ~ g, family = binomial(link = "probit"), data = .))
 aic_values <- models %>%
   purrr::map(summary) %>%
   purrr::map_dbl("aic")
@@ -61,17 +60,12 @@ models[[which(aic_values == aic_best)]] %>% summary
 set.seed(1234)
 d_values <- seq(from = 0.0, to = 0.5, by = 0.01)
 start_values <- seq_along(d_values) %>%
-  map(~ip_g(ped = dama, d = d_values[[.]])) %>%
-  map(~dplyr::select(.data = ., survival15, tidyselect::starts_with("g"))) %>% 
-  map(~glm(formula = survival15 ~ ., family = binomial(link = "probit"), data = .)) %>%
-  map("coefficients") %>%
-  map(~set_names(x = ., nm = c("W0", "B")))
+    map(~ip_g(ped = dama, d = d_values[[.]], name_to = "g")) %>%
+    map(~glm(formula = survival15 ~ g, family = binomial(link = "probit"), data = .)) %>%
+    map("coefficients") %>%
+    map(~set_names(x = ., nm = c("W0", "B")))
 models <- seq_along(d_values) %>%
-  map(~ip_g(ped = dama, d = d_values[[.]])) %>%
-  map(~dplyr::rename_with(.data = .,
-                          .fn = ~str_replace(., pattern = "g.*", replacement = "g"),
-                          .cols = tidyselect::starts_with("g"))) %>% 
-  map(~dplyr::select(.data = ., survival15, g)) %>% 
+  map(~ip_g(ped = dama, d = d_values[[.]], name_to = "g")) %>%
   map2(start_values, ~nls(formula = survival15 ~ W0 * exp(B * g), start = .y, data = .x))
 
 aic_values <- models %>% map_dbl(AIC)
@@ -90,8 +84,7 @@ d_values[which(aic_values == aic_best)]
 #  # Distance between So and Ss [d(So, Ss)] is estimated by means of the residual sum of squares (RSS)
 #  get_RSS <- function(data, par) {
 #    data %>%
-#      purgeR::ip_g(d = par[1], Fcol = "Fi") %>%
-#      rename_with(.data = ., .fn = ~str_replace(., pattern = "g.*", replacement = "g")) %>%
+#      purgeR::ip_g(d = par[1], Fcol = "Fi", name_to = "g") %>%
 #      dplyr::mutate(Ew = w0 * exp(-par[2] * g)) %>%
 #      dplyr::filter(!is.na(survival15)) %$%
 #      `-`(survival15-Ew) %>%
@@ -143,27 +136,21 @@ d_values[which(aic_values == aic_best)]
 posterior <- system.file("extdata", "posterior.rda", package = "purgeR")
 posterior <- base::readRDS(posterior)
 
-## ----save_old_par, include=FALSE----------------------------------------------
-opar <- par()
-
-## ----abc_tests, out.width = '300px', out.height = '300px', fig.align = 'center'----
-par(mar = c(1, 1, 1, 1))
-posterior[, 1:2] %>% base::plot()
-posterior[, 1:2] %>% coda::heidel.diag()
-posterior[, 1:2] %>% coda::autocorr.diag()
-posterior[, 1:2] %>% coda::effectiveSize()
-
-## ----reset_old_par, include=FALSE---------------------------------------------
-par(opar)
+## ----abc_tests, eval=FALSE----------------------------------------------------
+#  posterior[, 1:2] %>% base::plot()
+#  posterior[, 1:2] %>% coda::heidel.diag()
+#  posterior[, 1:2] %>% coda::autocorr.diag()
+#  posterior[, 1:2] %>% coda::effectiveSize()
 
 ## ----abc_plot, out.width = '250px', out.height = '250px', fig.align = 'center'----
 df <- data.frame(posterior)
 colnames(df) <- c("d", "delta", "RSS")
+
 # Joint posterior distribution
-p1 = ggplot(data = df) +
-  geom_point(aes(x=d, y=delta)) +
-  geom_density_2d_filled(aes(x=d, y=delta), alpha = 0.5) +
-  geom_point(x=0.22, y=1.11, size=3, shape = 4) +
+ggplot(data = df) +
+  geom_point(aes(x = d, y = delta)) +
+  geom_density_2d_filled(aes(x = d, y = delta), alpha = 0.5) +
+  geom_point(x = 0.22, y = 1.11, size = 3, shape = 4) +
   scale_x_continuous(expression(paste("Purging coefficient (", italic(d), ")", sep = "")),
                      limits = c(0, 0.5)) +
   scale_y_continuous(expression(paste("Inbreeding load (", italic(delta), ")", sep = "")),
@@ -173,37 +160,4 @@ p1 = ggplot(data = df) +
         axis.title = element_text(size = 12),
         axis.text = element_text(size = 10),
         legend.position = "none")
-
-# Marginal distributions
-p2 = ggplot(data=df) +
-  geom_density(aes(x=d), fill = "grey") +
-  coord_cartesian(x = c(0, 0.5), y = c(0.7, 2.7)) +
-  theme(panel.background = element_blank(),
-        axis.line = element_line(size = 0.1),
-        axis.text = element_text(size = 8),)
-p3 = ggplot(data=df) +
-  geom_density(aes(x=delta), fill = "grey") +
-  coord_flip(c(min(df$delta), max(df$delta)+0.3)) +
-  theme(panel.background = element_blank(),
-        axis.line = element_line(size = 0.1),
-        axis.text = element_text(size = 8),)
-
-# Build a grid plot from previous ones
-gt <- ggplot_gtable(ggplot_build(p1))
-gt2 <- ggplot_gtable(ggplot_build(p2))
-gt3 <- ggplot_gtable(ggplot_build(p3))
-
-gt1 <- gtable:::gtable_add_cols(gt, unit(0.3, "null"), pos = -1)
-gt1 <- gtable:::gtable_add_rows(gt1, unit(0.3, "null"), pos = 0)
-gt1 <- gtable:::gtable_add_grob(gt1, gt2$grobs[[which(gt2$layout$name == "panel")]],
-                                1, 5, 1, 5)
-gt1 <- gtable:::gtable_add_grob(gt1, gt2$grobs[[which(gt2$layout$name == "axis-l")]],
-                                1, 4, 1, 4, clip = "off")
-gt1 <- gtable:::gtable_add_grob(gt1, gt3$grobs[[which(gt3$layout$name == "panel")]],
-                                8, 10, 6, 10)
-gt1 <- gtable:::gtable_add_grob(gt1, gt3$grobs[[which(gt3$layout$name == "axis-b")]],
-                                11, 10, 9, 10, clip = "off")
-
-grid::grid.newpage()
-grid::grid.draw(gt1)
 

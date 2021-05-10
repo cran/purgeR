@@ -188,12 +188,13 @@ NULL
 #' 
 #' @template ped-arg
 #' @template reference-arg
+#' @param rp_idx Vector containing the indexes of individuals of the RP
 #' @param nboot Number of bootstrap iterations (for computing Ng).
 #' @template seed-arg
 #' @param skip_Ng Skip Ng computation or not (FALSE by default).
 #' @return Boolean vector indicating what individuals will be evaluated.
-ancestors <- function(ped, reference, nboot = 10000L, seed = NULL, skip_Ng = FALSE) {
-    .Call(`_purgeR_ancestors`, ped, reference, nboot, seed, skip_Ng)
+ancestors <- function(ped, reference, rp_idx, nboot = 10000L, seed = NULL, skip_Ng = FALSE) {
+    .Call(`_purgeR_ancestors`, ped, reference, rp_idx, nboot, seed, skip_Ng)
 }
 
 #' Rename individuals in a pedigree from 1 to N

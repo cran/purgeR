@@ -4,12 +4,14 @@
 \alias{ancestors}
 \title{Individuals to be evaluated in purging analyses}
 \usage{
-ancestors(ped, reference, nboot = 10000L, seed = NULL, skip_Ng = FALSE)
+ancestors(ped, reference, rp_idx, nboot = 10000L, seed = NULL, skip_Ng = FALSE)
 }
 \arguments{
 \item{ped}{A dataframe containing the pedigree. Individual (id), maternal (dam), and paternal (sire) identities are mandatory columns.}
 
 \item{reference}{A string naming a column indicating whether individuals belong to the reference population or not. Column must be boolean or coercible to boolean type.}
+
+\item{rp_idx}{Vector containing the indexes of individuals of the RP}
 
 \item{nboot}{Number of bootstrap iterations (for computing Ng).}
 

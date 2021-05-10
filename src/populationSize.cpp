@@ -14,6 +14,7 @@ int sample_allele(int, int);
 //' 
 //' @template ped-arg
 //' @template reference-arg
+//' @param rp_idx Vector containing the indexes of individuals of the RP
 //' @param nboot Number of bootstrap iterations (for computing Ng).
 //' @template seed-arg
 //' @param skip_Ng Skip Ng computation or not (FALSE by default).
@@ -21,6 +22,7 @@ int sample_allele(int, int);
 // [[Rcpp::export]]
 DataFrame ancestors(Rcpp::DataFrame ped,
                     Rcpp::LogicalVector reference,
+                    Rcpp::IntegerVector rp_idx,
                     int nboot = 10000,
                     Nullable<NumericVector> seed = R_NilValue,
                     bool skip_Ng = false) {
@@ -34,45 +36,38 @@ DataFrame ancestors(Rcpp::DataFrame ped,
   }
 
   // Setting
-  Rcpp::LogicalVector ped_ref = reference;
-  Rcpp::LogicalVector eval = !is_na(ped_ref);
+  Rcpp::LogicalVector eval = !is_na(reference);
   Rcpp::IntegerVector id = ped[id_col];
   Rcpp::IntegerVector dam = ped[dam_col];
   Rcpp::IntegerVector sire = ped[sire_col];
   R_xlen_t N = ped.rows();
+  int idxmin = min(rp_idx);
+  int idxmax = max(rp_idx);
+  int Nmax = idxmax + 1;
 
-  // Individuals younger than the youngest in the reference population (RP) are not evaluated.
-  int Neval = N;
-  for (int i(N); i>=1; --i) {
-    if (eval[i-1]) break;
-    else --N;
-  }
-  
   // Compute total number of founders, ancestors, and individuals in the RP
   int Nr = 0; // RP size
   int Nf = 0; // number of founders
   int Na = 0; // number of ancestors
   Rcpp::LogicalVector founders (N, false);
   Rcpp::LogicalVector ancestors (N, false);
-  for (int i(Neval); i>=1; --i) {
-    if (eval[i-1] && ped_ref[i-1]) {
-      ++Nr;
-      search_ancestors(ped, i-1, founders, ancestors);
-      if (Nr % 50 == 0) Rcpp::checkUserInterrupt(); // check cancelation from user
-    }
+  for (const auto& idx: rp_idx) {
+    ++Nr;
+    search_ancestors(ped, idx, founders, ancestors);
+    Rcpp::checkUserInterrupt(); // check cancellation from user
   }
   Nf = sum(founders);
   Na = sum(ancestors);
-  
+
   // Compute probabilities of gene origin
   Rcpp::NumericVector q (N, 0.0);
-  q = ifelse (ped_ref & eval, 1.0, q);
+  q = ifelse (reference & eval, 1.0, q);
   Rcpp::NumericVector q_init = Rcpp::clone(q);
-  for (int i(N); i>=1; --i) {
-    if (sire[i-1]) q[sire[i-1]-1] += 0.5*q[id[i-1]-1];
-    if (dam[i-1]) q[dam[i-1]-1] += 0.5*q[id[i-1]-1];
+  for (int i(idxmax); i >= 0; --i) {
+    if (sire[i]) q[sire[i]-1] += 0.5*q[id[i]-1];
+    if (dam[i]) q[dam[i]-1] += 0.5*q[id[i]-1];
   }
-  for (int i(0); i<N; ++i) {
+  for (int i(0); i < Nmax; ++i) {
     if (dam[i] && !sire[i]) q[i] *= 0.5;
     else if (!dam[i] && sire[i]) q[i] *= 0.5;
   }
@@ -89,13 +84,13 @@ DataFrame ancestors(Rcpp::DataFrame ped,
   double Nae (0.0);
   double maxq (0.0);
   int major (N-1);
-  for (int i(0); i<N; ++i) {
+  for (int i(0); i < Nmax; ++i) {
     if (ancestors[i] && q[i] > maxq) {
       maxq = q[i];
       major = i;
     }
   }
-  
+
   Rcpp::DataFrame copy_ped = Rcpp::clone(ped);
   Rcpp::IntegerVector copy_dam = copy_ped[dam_col];
   Rcpp::IntegerVector copy_sire = copy_ped[sire_col];
@@ -112,7 +107,7 @@ DataFrame ancestors(Rcpp::DataFrame ped,
   while (is_in(true, ancestors_std)) {
 
     // control errors
-    if (++count > N) {
+    if (++count > Nmax) {
       Rcpp::Rcerr << ERROR_UNEXPECTED << std::endl;
       return Rcpp::DataFrame::create(
         Named("Nr") = Nr,
@@ -127,27 +122,31 @@ DataFrame ancestors(Rcpp::DataFrame ped,
 
     // compute q
     std::vector<double> tmp_q = Rcpp::as<std::vector<double>>(q_init);
-    for (int i(N); i>=1; --i) {
-      if (used_a[i-1]) continue;
-      if (sire[i-1]) tmp_q[sire[i-1]-1] += 0.5*tmp_q[id[i-1]-1];
-      if (dam[i-1]) tmp_q[dam[i-1]-1] += 0.5*tmp_q[id[i-1]-1];
+    for (int i(idxmax); i >= 0; --i) {
+      if (used_a[i]) continue;
+      if (sire[i]) tmp_q[sire[i]-1] += 0.5*tmp_q[id[i]-1];
+      if (dam[i]) tmp_q[dam[i]-1] += 0.5*tmp_q[id[i]-1];
     }
     // compute a
     std::vector<double> a (N, 1.0);
-    for (int i(0); i<N; ++i) if (ancestors_std[i]) a[i] = 0.0;
-    for (int i(0); i<N; ++i) {
+    for (int i(0); i < Nmax; ++i) if (ancestors_std[i]) a[i] = 0.0;
+    for (int i(0); i < Nmax; ++i) {
       if (used_a[i]) continue;
-      if ((sire[i]-1) && a[sire[i]-1] > 0.0) a[id[i]-1] += 0.5*a[sire[i]-1];
-      if ((dam[i]-1) && a[dam[i]-1] > 0.0) a[id[i]-1] += 0.5*a[dam[i]-1];
+      if (sire[i]) {
+        if (a[sire[i]-1] > 0.0) a[id[i]-1] += 0.5*a[sire[i]-1];
+      }
+      if (dam[i]) {
+        if (a[dam[i]-1] > 0.0) a[id[i]-1] += 0.5*a[dam[i]-1];
+      }
     }
     // compute p
     std::vector<double> p (tmp_q);
-    for (int i(0); i<N; ++i) { p[i] *= (1.0-a[i]); }
+    for (int i(0); i < Nmax; ++i) { p[i] *= (1.0-a[i]); }
     // choose new major
     double maxp (-1.0);
-    for (int i(N); i>=1; --i) {
-      if (!ancestors_std[i-1]) continue;
-      if (p[i-1] > maxp) { maxp = p[i-1]; major = i-1; }
+    for (int i(idxmax); i >= 0; --i) {
+      if (!ancestors_std[i]) continue;
+      if (p[i] > maxp) { maxp = p[i]; major = i; }
     }
     // final f
     pf[major] = p[major];
@@ -158,10 +157,10 @@ DataFrame ancestors(Rcpp::DataFrame ped,
     ancestors_std[major] = false;
     used_a[major] = true;
 
-    // check cancelation from user
+    // check cancellation from user
     Rcpp::checkUserInterrupt();
   }
-  for (int i(0); i<N; ++i) {
+  for (int i(0); i < Nmax; ++i) {
     if (ancestors[i]) Nae += (pf[i]*pf[i]);
   }
   Nae = 1.0 / Nae;
@@ -191,7 +190,7 @@ DataFrame ancestors(Rcpp::DataFrame ped,
     std::vector<int> al_dam;
     std::vector<int> al_sire;
     int al_count(0);
-    for (int i(0); i<N; ++i) {
+    for (int i(0); i < Nmax; ++i) {
       if (!tmp_dam[i] && !tmp_sire[i]) {
         al_dam.push_back(al_count++);
         al_sire.push_back(al_count++);
@@ -199,24 +198,24 @@ DataFrame ancestors(Rcpp::DataFrame ped,
         abs_freq.push_back(0);
       } else if (!tmp_dam[i]) {
         abs_freq.push_back(0);
-        if (ped_ref[i] & eval[i]) ++abs_freq[abs_freq.size()-1];
+        if (reference[i] & eval[i]) ++abs_freq[abs_freq.size()-1];
         al_dam.push_back(al_count++);
         int al (sample_allele(al_dam[sire[i]-1], al_sire[sire[i]-1]));
-        if (ped_ref[i] & eval[i]) ++abs_freq[al];
+        if (reference[i] & eval[i]) ++abs_freq[al];
         al_sire.push_back(al);
       } else if (!tmp_sire[i]) {
         int al (sample_allele(al_dam[dam[i]-1], al_sire[dam[i]-1]));
         al_dam.push_back(al);
-        if (ped_ref[i] & eval[i]) ++abs_freq[al];
+        if (reference[i] & eval[i]) ++abs_freq[al];
         abs_freq.push_back(0);
-        if (ped_ref[i] & eval[i]) ++abs_freq[abs_freq.size()-1];
+        if (reference[i] & eval[i]) ++abs_freq[abs_freq.size()-1];
         al_sire.push_back(al_count++);
       } else {
         int al1 (sample_allele(al_dam[dam[i]-1], al_sire[dam[i]-1]));
         int al2 (sample_allele(al_dam[sire[i]-1], al_sire[sire[i]-1]));
         al_dam.push_back(al1);
         al_sire.push_back(al2);
-        if (ped_ref[i] & eval[i]) {
+        if (reference[i] & eval[i]) {
           ++abs_freq[al1];
           ++abs_freq[al2];
         }

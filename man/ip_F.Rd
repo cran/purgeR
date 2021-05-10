@@ -21,7 +21,8 @@ This is the probability that two alleles on a locus are identical by descent (Fa
 }
 \examples{
 data(dama)
-ip_F(dama)
+dama <- ip_F(dama)
+tail(dama)
 }
 \references{
 \itemize{

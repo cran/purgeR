@@ -29,7 +29,8 @@ in the package.
 }
 \examples{
 data(darwin)
-ped_rename(darwin, id = "Individual", dam = "Mother", sire = "Father", keep_names = TRUE)
+darwin <- ped_rename(darwin, id = "Individual", dam = "Mother", sire = "Father", keep_names = TRUE)
+head(darwin)
 }
 \seealso{
 \code{\link{ped_clean}}

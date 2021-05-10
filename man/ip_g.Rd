@@ -30,7 +30,8 @@ for pedigrees in García-Dorado (2012) and García-Dorado et al. (2016).
 }
 \examples{
 data(dama)
-ip_g(dama, d = 0.23)
+dama <- ip_g(dama, d = 0.23)
+tail(dama)
 }
 \references{
 \itemize{

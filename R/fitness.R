@@ -9,7 +9,8 @@
 #' @return The input dataframe, plus an additional column indicating the total number of offspring.
 #' @examples
 #' data(dama)
-#' w_offspring(dama, name_to = "P")
+#' dama <- w_offspring(dama, name_to = "P")
+#' head(dama)
 #' @export
 w_offspring <- function(ped, name_to, dam_offspring = TRUE, sire_offspring = TRUE) {
 
@@ -44,7 +45,8 @@ w_offspring <- function(ped, name_to, dam_offspring = TRUE, sire_offspring = TRU
 #' @return The input dataframe, plus an additional column indicating the total number of grandoffspring.
 #' @examples
 #' data(dama)
-#' w_grandoffspring(dama, name_to = "G")
+#' dama <- w_grandoffspring(dama, name_to = "G")
+#' head(dama)
 #' @export
 w_grandoffspring <- function(ped, name_to) {
   

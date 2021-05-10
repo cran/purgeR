@@ -19,7 +19,8 @@ Computes the number of equivalent complete generations (\emph{t}), as defined by
 }
 \examples{
 data(dama)
-pop_t(dama)
+dama <- pop_t(dama)
+tail(dama)
 }
 \references{
 \itemize{

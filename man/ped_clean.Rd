@@ -26,7 +26,9 @@ renamed (see \code{\link[purgeR]{ped_rename}}).
 }
 \examples{
 data(arrui)
-ped_clean(arrui, "survival15")
+nrow(arrui)
+arrui <- ped_clean(arrui, "survival15")
+nrow(arrui)
 }
 \seealso{
 \code{\link[purgeR]{ped_rename}}

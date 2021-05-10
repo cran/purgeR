@@ -16,7 +16,8 @@
 #' @seealso \code{\link{exp_F}}
 #' @examples
 #' data(dama)
-#' ip_F(dama)
+#' dama <- ip_F(dama)
+#' tail(dama)
 #' @export
 ip_F <- function(ped, name_to = "Fi") {
   check_basic(ped)
@@ -44,9 +45,10 @@ ip_F <- function(ped, name_to = "Fi") {
 #' @seealso \code{\link{ip_F}}, \code{\link{exp_Fa}}
 #' @examples
 #' data(dama)
-#' ip_Fa(dama) # Compute F on the go (won't be kept in the pedigree).
+#' # dama <- ip_Fa(dama) # Compute F on the go (won't be kept in the pedigree).
 #' dama <- ip_F(dama)
 #' dama <- ip_Fa(dama, Fcol = 'Fi') # If F is computed in advance.
+#' tail(dama)
 #' @export
 ip_Fa <- function(ped, name_to = "Fa", genedrop = 0, seed = NULL, Fcol = NULL) {
   check_basic(ped)
@@ -81,7 +83,8 @@ ip_Fa <- function(ped, name_to = "Fa", genedrop = 0, seed = NULL, Fcol = NULL) {
 #' }
 #' @examples
 #' data(dama)
-#' ip_g(dama, d = 0.23)
+#' dama <- ip_g(dama, d = 0.23)
+#' tail(dama)
 #' @export
 ip_g <- function(ped, d, name_to = "g<d>", Fcol = NULL) {
   check_basic(ped, "id", "dam", "sire")

@@ -28,5 +28,6 @@ paternal) value for an observed variable of interest.
 # To assign maternal inbreeding as a new variable, we can do as follows:
 data(dama)
 dama <- ip_F(dama)
-ped_maternal(dama, value_from = "Fi", name_to = "Fdam")
+dama <- ped_maternal(dama, value_from = "Fi", name_to = "Fdam")
+tail(dama)
 }

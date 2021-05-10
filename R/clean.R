@@ -15,7 +15,9 @@
 #' @seealso \code{\link[purgeR]{ped_rename}}
 #' @examples
 #' data(arrui)
-#' ped_clean(arrui, "survival15")
+#' nrow(arrui)
+#' arrui <- ped_clean(arrui, "survival15")
+#' nrow(arrui)
 #' @export
 ped_clean <- function(ped, value_from) {
   check_basic(ped)

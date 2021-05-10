@@ -64,7 +64,6 @@ DataFrame rename(DataFrame ped,
 	if (sire != sire_col) rename_names[get_index(std_names, sire_name)] = sire_col;
 	rename_ped.attr("names") = rename_names;
 
-	if (keep_names) return Rcpp::DataFrame::create(rename_ped, Named(names_col) = str_id);
 	return rename_ped;
 }
 

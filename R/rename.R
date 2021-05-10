@@ -15,11 +15,16 @@
 #' @seealso \code{\link{ped_clean}}
 #' @examples
 #' data(darwin)
-#' ped_rename(darwin, id = "Individual", dam = "Mother", sire = "Father", keep_names = TRUE)
+#' darwin <- ped_rename(darwin, id = "Individual", dam = "Mother", sire = "Father", keep_names = TRUE)
+#' head(darwin)
 #' @export
 ped_rename <- function(ped, id = "id", dam = "dam", sire = "sire", keep_names = FALSE) {
   check_basic(ped, id_name = id, dam_name = dam, sire_name = sire, when_rename = TRUE)
   check_bool(keep_names)
-  if (keep_names) check_not_col(base::colnames(ped), "names");
-  .Call(`_purgeR_rename`, ped, id, dam, sire, keep_names)
+  if (keep_names) check_not_col(base::colnames(ped), "names")
+  ped_renamed <- .Call(`_purgeR_rename`, ped, id, dam, sire, keep_names)
+  if (keep_names) {
+    ped_renamed["names"] <- ped[id]
+  }
+  ped_renamed
 }

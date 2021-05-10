@@ -13,7 +13,8 @@
 #' # To assign maternal inbreeding as a new variable, we can do as follows:
 #' data(dama)
 #' dama <- ip_F(dama)
-#' ped_maternal(dama, value_from = "Fi", name_to = "Fdam")
+#' dama <- ped_maternal(dama, value_from = "Fi", name_to = "Fdam")
+#' tail(dama)
 #' @export
 ped_maternal <- function(ped, value_from, name_to, use_dam = TRUE, set_na = NULL) {
 

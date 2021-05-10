@@ -19,5 +19,6 @@ Counts the number of grandoffspring for individuals in the pedigree.
 }
 \examples{
 data(dama)
-w_grandoffspring(dama, name_to = "G")
+dama <- w_grandoffspring(dama, name_to = "G")
+head(dama)
 }

@@ -23,5 +23,6 @@ Counts the number of offspring for individuals in the pedigree.
 }
 \examples{
 data(dama)
-w_offspring(dama, name_to = "P")
+dama <- w_offspring(dama, name_to = "P")
+head(dama)
 }

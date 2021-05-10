@@ -104,17 +104,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // ancestors
-DataFrame ancestors(Rcpp::DataFrame ped, Rcpp::LogicalVector reference, int nboot, Nullable<NumericVector> seed, bool skip_Ng);
-RcppExport SEXP _purgeR_ancestors(SEXP pedSEXP, SEXP referenceSEXP, SEXP nbootSEXP, SEXP seedSEXP, SEXP skip_NgSEXP) {
+DataFrame ancestors(Rcpp::DataFrame ped, Rcpp::LogicalVector reference, Rcpp::IntegerVector rp_idx, int nboot, Nullable<NumericVector> seed, bool skip_Ng);
+RcppExport SEXP _purgeR_ancestors(SEXP pedSEXP, SEXP referenceSEXP, SEXP rp_idxSEXP, SEXP nbootSEXP, SEXP seedSEXP, SEXP skip_NgSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::DataFrame >::type ped(pedSEXP);
     Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type reference(referenceSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type rp_idx(rp_idxSEXP);
     Rcpp::traits::input_parameter< int >::type nboot(nbootSEXP);
     Rcpp::traits::input_parameter< Nullable<NumericVector> >::type seed(seedSEXP);
     Rcpp::traits::input_parameter< bool >::type skip_Ng(skip_NgSEXP);
-    rcpp_result_gen = Rcpp::wrap(ancestors(ped, reference, nboot, seed, skip_Ng));
+    rcpp_result_gen = Rcpp::wrap(ancestors(ped, reference, rp_idx, nboot, seed, skip_Ng));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -154,7 +155,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_purgeR_hwd", (DL_FUNC) &_purgeR_hwd, 2},
     {"_purgeR_op", (DL_FUNC) &_purgeR_op, 6},
     {"_purgeR_Fij_core_i_cpp", (DL_FUNC) &_purgeR_Fij_core_i_cpp, 4},
-    {"_purgeR_ancestors", (DL_FUNC) &_purgeR_ancestors, 5},
+    {"_purgeR_ancestors", (DL_FUNC) &_purgeR_ancestors, 6},
     {"_purgeR_rename", (DL_FUNC) &_purgeR_rename, 5},
     {"_purgeR_evaluate", (DL_FUNC) &_purgeR_evaluate, 2},
     {NULL, NULL, 0}

@@ -12,7 +12,8 @@
 #' }
 #' @examples
 #' data(dama)
-#' pop_t(dama)
+#' dama <- pop_t(dama)
+#' tail(dama)
 #' @export
 pop_t <-function(ped, name_to = "t") {
   check_basic(ped)

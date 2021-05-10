@@ -63,7 +63,8 @@ pop_Nancestors <- function(ped, reference, nboot = 10000L, seed = NULL, skip_Ng 
   if (nboot < 100 || nboot > 100000000) stop("Number of bootstrap iterations expected in the range[100, 100000000]")
   if (!base::is.null(seed)) check_int(seed)
   check_bool(skip_Ng)
-  .Call(`_purgeR_ancestors`, ped, ref, nboot, seed, skip_Ng)
+  rp <- ped[which(ped[reference] == TRUE & !is.na(ped[reference])), ]$id
+  .Call(`_purgeR_ancestors`, ped, ref, rp - 1, nboot, seed, skip_Ng)
 }
 
 #' @export
