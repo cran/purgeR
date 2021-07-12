@@ -8,8 +8,9 @@
 ip_op(
   ped,
   complex = TRUE,
-  name_O = "O",
   name_Oe = "Oe",
+  compute_O = FALSE,
+  name_O = "O",
   Fcol = NULL,
   ncores = 1L
 )
@@ -19,16 +20,18 @@ ip_op(
 
 \item{complex}{Enable correction for complex pedigrees.}
 
-\item{name_O}{A string naming the new output column for total opportunity of purging (defaults to "O")}
-
 \item{name_Oe}{A string naming the new output column for the expressed opportunity of purging (defaults to "Oe")}
+
+\item{compute_O}{Enable computation of total opportunity of purging (disabled by default)}
+
+\item{name_O}{A string naming the new output column for total opportunity of purging (defaults to "O")}
 
 \item{Fcol}{Name of column with inbreeding coefficient values. If none is used, inbreeding will be computed.}
 
 \item{ncores}{Number of cores to use for parallel computing (default = 1)}
 }
 \value{
-The input dataframe, plus two additional columns containing total and expressed opportunity of purging measures (named "O" and "Oe" by default).
+The input dataframe, plus an additional column containing \emph{Oe} estimates (and additional column for \emph{O} can appended by enabling \emph{compute_O}).
 }
 \description{
 The potential reduction in individual inbreeding load can be
@@ -37,11 +40,11 @@ opportunity of purging (\emph{Oe}) parameters described by Gulisija
 and Crow (2007). Whereas \emph{O} relates to the total potential reduction
 of the inbreeding load in an individual, as a consequence of it having
 inbred ancestors, \emph{Oe} relates to the expressed potential reduction of the
-inbreeding load. In both cases, these measures are referred to fully recessive,
-high effect size alleles (e.g. lethals). For complex pedigrees, involving more than one
-autozygous individual per path from a reference individual to an
-ancestor, these estimates are estimated following an heuristic approach
-(see details below).
+inbreeding load. Only \emph{Oe} is computed by default. In both cases,
+the model refers to fully recessive, high effect size alleles (e.g. lethals).
+For complex pedigrees, involving more than one autozygous individual per
+path from a reference individual to an ancestor, these estimates are
+estimated following an heuristic approach (see details below).
 }
 \details{
 In simple pedigrees, the opportunity of purging (\emph{O}) and the expressed
@@ -71,7 +74,7 @@ pedigree <- tibble::tibble(
   sire = c("0", "0", "0", "J", "a", "J", "b", "b", "d")
 )
 pedigree <- purgeR::ped_rename(pedigree)
-ip_op(pedigree)
+ip_op(pedigree, compute_O = TRUE)
 }
 \references{
 \itemize{

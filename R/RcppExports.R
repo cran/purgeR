@@ -132,6 +132,7 @@ hwd <- function(ped, reference = NULL) {
 #' @template Fi-arg
 #' @param name_O A string naming the new output column for total opportunity of purging (defaults to "O") 
 #' @param name_Oe A string naming the new output column for the expressed opportunity of purging (defaults to "Oe")
+#' @param compute_O Enable computation of total opportunity of purging (false by default)
 #' @param complex Enable correction for complex pedigrees.
 #' @return The input dataframe, plus two additional column named "O" and "Oe", containing total and expressed opportunity of purging measures.
 #' @encoding UTF-8
@@ -139,8 +140,8 @@ hwd <- function(ped, reference = NULL) {
 #' \itemize{
 #'   \item{Gulisija D, Crow JF. 2007. Inferring purging from pedigree data. Evolution 61(5): 1043-1051.}
 #' }
-op <- function(ped, pi, Fi, name_O, name_Oe, complex = TRUE) {
-    .Call(`_purgeR_op`, ped, pi, Fi, name_O, name_Oe, complex)
+op <- function(ped, pi, Fi, name_O, name_Oe, compute_O = FALSE, complex = TRUE) {
+    .Call(`_purgeR_op`, ped, pi, Fi, name_O, name_Oe, compute_O, complex)
 }
 
 #' Partial inbreeding coefficient (core function)

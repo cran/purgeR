@@ -30,7 +30,7 @@ library(purrr)
 library(stringr)
 ```
 
-This vignette is provides a practical guide on how to use functions in purgeR to estimate parameters related to inbreeding and purging using estimates obtained with functions from purgeR. For illustrative purposes, we will estimate here the magnitude of the inbreeding load ($B$) and the purging coefficient ($d$) using different approaches. Note however that this guide is not exhaustive. Different methods to those applied here could be used to estimate these parameters, as well as alternative models of inbreeding and purging. For example, purging models could be based on ancestral inbreeding (e.g. Boakes et al. 2007) or the individual reduction in inbreeding load (e.g. Gulisija and Crow 2007). If you haven't, read the 'purgeR-tutorial' vignette for a more concise and complete introduction to functions in purgeR.
+This vignette provides a practical guide on how to use functions in purgeR to estimate parameters related to inbreeding and purging using estimates obtained with functions from purgeR. For illustrative purposes, we will estimate here the magnitude of the inbreeding load ($B$) and the purging coefficient ($d$) using different approaches. Note however that this guide is not exhaustive. Different methods to those applied here could be used to estimate these parameters, as well as alternative models of inbreeding and purging. For example, purging models could be based on ancestral inbreeding (e.g. Boakes et al. 2007) or the individual reduction in inbreeding load (e.g. Gulisija and Crow 2007). If you haven't, read the 'purgeR-tutorial' vignette for a more concise and complete introduction to functions in purgeR.
 
 Below, we assume Morton et al. (1956) multiplicative model of fitness to fit and predict inbreeding and purging models, and some examples are used in sections below. Under this model, the expected fitness ($E(W)$) can be calculated as:
 
@@ -62,7 +62,7 @@ dama %>%
 
 ### Working with more complex models
 
-The same principle can be applied to more complex models that include terms associated to inbreeding (like $F$ in previous examples), but also others associated to genetic purging, and environmental factors. Similarly, different statistic methods can be applied, making the most of R extensive package library.
+The same principle can be applied to more complex models that include terms associated with inbreeding (like $F$ in previous examples), but also others associated with genetic purging, and environmental factors. Similarly, different statistical methods can be applied, making the most of R extensive package library.
 
 One remarkable example is making use of the Classification And REgression Training (`caret`) R package. Providing more complex and exhaustive examples using this library falls out of the scope of this tutorial, but as a naive example, a regularized logistic regression method is used below to fit a training set with *N. dama* data, and estimate regression coefficient terms on a model including standard and ancestral inbreeding as genetic factors, plus year of birth and period of management as environmental factors. The confusion matrix shows that the model has little predictive value though.
 
@@ -123,7 +123,7 @@ This new estimate avoids problems derived from scale transformation. For example
 
 ### Estimating the purging coefficient: Bayesian example
 
-Above we have used regression methods to obtain maximum likelihood estimates of different inbreeding and purging parameters, but we could also take a Bayesian approach using R functions, and ask about the posterior distribution of some of these parameters. Below, we focus on the re-estimation of the inbreeding load and the purging coefficient using Approximate Bayesian Computation (ABC). Again, this is intended to provide an example of use, and we warn that the summary statistic used as well as the threshold value have not been extensively tested. A good review on ABC methods and best practices can be found in Beaumont (2010).
+Above we have used regression methods to obtain maximum likelihood estimates of different inbreeding and purging parameters, but we could also take a Bayesian approach using R functions, and ask about the posterior distribution of some of these parameters. Below, we focus on the re-estimation of the inbreeding load and the purging coefficient using Approximate Bayesian Computation (ABC). Again, this is intended to provide an example of use, and we warn that the summary statistics used as well as the threshold value have not been extensively tested. A good review on ABC methods and best practices can be found in Beaumont (2010).
 
 ```{r estimate_purging_coefficient_abc, eval=FALSE}
 # Initialize observed data
@@ -185,7 +185,7 @@ t = t*1.005
 posterior <- MCMC_ABC(dama, niter = 5100, nburn = 100, nthin = 50, threshold = t*1.005)
 ```
 
-We could now make some basic checks on the MCMC chain generated, including convergence and auto-correlation test. In this case, the generated MCMC chain passes Heidelberger and Welch's convergence test, that auto-correlation is low given the thinning interval used, and that the effective number of samples is close to 1000 (code not run here).
+We could now make some basic checks on the MCMC chain generated, including convergence and auto-correlation tests. In this case, the generated MCMC chain passes Heidelberger and Welch's convergence test, that auto-correlation is low given the thinning interval used, and that the effective number of samples is close to 1000 (code not run here).
 
 ```{r read_chain, include=FALSE}
 posterior <- system.file("extdata", "posterior.rda", package = "purgeR")

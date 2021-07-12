@@ -4,7 +4,7 @@
 \alias{check_order}
 \title{Check individual order}
 \usage{
-check_order(id, dam, sire)
+check_order(id, dam, sire, soft_sorting = FALSE)
 }
 \arguments{
 \item{id}{Vector of individual ids.}
@@ -12,6 +12,8 @@ check_order(id, dam, sire)
 \item{dam}{Vector of dam ids.}
 
 \item{sire}{Vector of sire ids.}
+
+\item{soft_sorting}{If TRUE checking is relaxed, allowing descendants to be declared before ancestors}
 }
 \value{
 No return value. Will print an error message if checking fail.

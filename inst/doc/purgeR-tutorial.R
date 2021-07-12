@@ -65,7 +65,7 @@ tibble::tibble(founder1 = m[, 1], founder2 = m[, 2], Fi = plyr::round_any(arrui$
   )
 
 ## ----Fa-----------------------------------------------------------------------
-# F was precomuted above
+# F was pre-computed above
 darwin %>%
   purgeR::ip_Fa(Fcol = "Fi") %>%
   dplyr::filter(names == "William Erasmus Darwin")
@@ -96,9 +96,10 @@ arrui <- arrui_op
 ## ----op_plot, warning=FALSE, fig.align = 'center'-----------------------------
 arrui %>%
   ggplot() +
-  geom_point(aes(x = O, y = Oe/Fi, fill = Fi), pch = 21, size = 3) +
+  geom_point(aes(x = yob, y = Oe/Fi, fill = Fi), pch = 21, size = 3, alpha = 0.8) +
   scale_fill_gradient2(low = "blue", high = "red", midpoint = 0.4, mid = "white", space = "Lab") +
-  scale_y_continuous(expression(paste("Normalized ", O[e], sep="")))
+  scale_y_continuous(expression(paste("Normalized ", O[e], sep=""))) +
+  scale_x_continuous("Year of birth")
 
 ## ----recover_arrui, include=FALSE---------------------------------------------
 arrui <- arrui_tmp

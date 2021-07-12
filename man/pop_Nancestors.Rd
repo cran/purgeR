@@ -66,8 +66,8 @@ This parameter is estimated via Monte Carlo simulation of allele segregation,
 following Boichard et al. (1997).
 }
 \examples{
-data(atlas)
-pop_Nancestors(atlas, reference = "target")
+data(arrui)
+pop_Nancestors(arrui, reference = "target")
 }
 \references{
 \itemize{

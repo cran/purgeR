@@ -43,6 +43,7 @@ std::vector<std::set<int>> map_ancestor_ibd (Rcpp::IntegerVector, Rcpp::IntegerV
 //' @template Fi-arg
 //' @param name_O A string naming the new output column for total opportunity of purging (defaults to "O") 
 //' @param name_Oe A string naming the new output column for the expressed opportunity of purging (defaults to "Oe")
+//' @param compute_O Enable computation of total opportunity of purging (false by default)
 //' @param complex Enable correction for complex pedigrees.
 //' @return The input dataframe, plus two additional column named "O" and "Oe", containing total and expressed opportunity of purging measures.
 //' @encoding UTF-8
@@ -56,6 +57,7 @@ Rcpp::DataFrame op(Rcpp::DataFrame ped,
                    Rcpp::NumericVector Fi,
                    std::string name_O,
                    std::string name_Oe,
+                   bool compute_O = false,
                    bool complex = true) {
   
   // Check errors
@@ -73,12 +75,44 @@ Rcpp::DataFrame op(Rcpp::DataFrame ped,
   bool display_progress = true;
   Rcpp::Rcerr << "Computing opportunity of purging values... " << std::endl;
   Progress p(N, display_progress);
-  
-  // Non corrected O and Oe
+
+  Rcpp::Rcout << std::endl;
+  // Compute Oe (and O)
   for (int i(0); i<N; ++i) {
-    double Oi = 0.0;
+
     double Ei = 0.0;
-    // common ancestors
+
+    // Compute O (loop over all i's inbred ancestors)
+    std::set<int> ancestors_inbred;
+    if (compute_O) {
+      double Oi = 0.0;
+      ancestors_inbred = ancestors_ibd[i];
+      for (const auto& ancestor: ancestors_inbred) {
+        // Skip if ancestor's inbreeding O and Oe is already accounted by a previous ancestor
+        // Following Gulisija & Crow's algorithm, " the opportunity for purging in a closer
+        // ancestor is discounted for what was already accounted for in its predecessor"
+        // Here, we do not compute the predecessor's O and Oe if a closer ancestor already
+        // contributes O and Oe, and is related to that predecessor.
+        // This also helps to avoid intensive  computational burden
+        bool skip = false;
+        std::set<int> ancestors_other = ancestors_inbred;
+        ancestors_other.erase(ancestor);
+        for (std::set<int>::iterator it = ancestors_other.begin(); it != ancestors_other.end(); ++it) { // loop over i ancestors
+          if (pi(*it-1, ancestor-1) > 0.0) {
+            skip = true;
+            break;
+          }
+        }
+        if (skip & complex) continue;
+        std::vector<int> path_n;
+        map_ij_distance (id[i], ancestor, dam, sire, path_n, 1);
+        double Fancestor_test (Fi[ancestor-1]);
+        for (const auto& n: path_n) Oi += pow(0.5, n-1)*Fancestor_test;
+      }
+      O.push_back(Oi);
+    }
+
+    // Compute Oe (loop over all ancestors common to i's parents)
     std::set<int> ancestors_common; // for every individual, it list the common maternal and paternal inbred ancestors
     if (dam[i] && sire[i]) {
       std::set_intersection(ancestors_ibd[dam[i]-1].begin(),
@@ -88,12 +122,7 @@ Rcpp::DataFrame op(Rcpp::DataFrame ped,
                             std::inserter(ancestors_common, ancestors_common.begin()));
     }
     for (const auto& ancestor: ancestors_common) {
-      // Skip if ancestor's inbreeding O and Oe is already accounted by a previous ancestor
-      // Following Gulisija & Crow's algoritm, " the opportunity for purging in a closer
-      // ancestor is discounted for what was already accounted for in its predecessor"
-      // Here, we do not compute the predecessor's O and Oe if a closer ancestor already
-      // contributes O and Oe, and is related to that predecessor.
-      // This also helps to avoid intensive  computational burden
+      // Heuristic to skip complex computations (see above)
       bool skip = false;
       std::set<int> ancestors_other = ancestors_common;
       ancestors_other.erase(ancestor);
@@ -104,20 +133,16 @@ Rcpp::DataFrame op(Rcpp::DataFrame ped,
         }
       }
       if (skip & complex) continue;
-      // Compute O and Oe only for recent ancestors
-      std::vector<int> path_n;
-      map_ij_distance (id[i], ancestor, dam, sire, path_n, 1);
+      // Compute Oe only for recent ancestors
       double Fancestor (Fi[ancestor-1]);
-      for (const auto& n: path_n) Oi += pow(0.5, n-1)*Fancestor;
       Ei += pi(i, ancestor-1)*Fancestor;
     }
-    O.push_back(Oi);
     E.push_back(2.0*Ei);
     p.increment(); // update progress
     Rcpp::checkUserInterrupt(); // check cancellation from user
   }
-  
-  ped[name_O] = O;
+
+  if (compute_O) ped[name_O] = O;
   ped[name_Oe] = E;
   return ped;
 }

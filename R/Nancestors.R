@@ -53,8 +53,8 @@
 #'   \item{Tahmoorespur M, Sheikhloo M. 2011. Pedigree analysis of the closed nucleus of Iranian Baluchi sheep. Small Rumin. Res. 99: 1-6.}
 #'}
 #' @examples
-#' data(atlas)
-#' pop_Nancestors(atlas, reference = "target")
+#' data(arrui)
+#' pop_Nancestors(arrui, reference = "target")
 #' @export
 pop_Nancestors <- function(ped, reference, nboot = 10000L, seed = NULL, skip_Ng = FALSE) {
   check_basic(ped, "id", "dam", "sire")

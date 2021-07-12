@@ -6,11 +6,11 @@
 #' and Crow (2007). Whereas \emph{O} relates to the total potential reduction
 #' of the inbreeding load in an individual, as a consequence of it having
 #' inbred ancestors, \emph{Oe} relates to the expressed potential reduction of the
-#' inbreeding load. In both cases, these measures are referred to fully recessive,
-#' high effect size alleles (e.g. lethals). For complex pedigrees, involving more than one
-#' autozygous individual per path from a reference individual to an
-#' ancestor, these estimates are estimated following an heuristic approach
-#' (see details below).
+#' inbreeding load. Only \emph{Oe} is computed by default. In both cases,
+#' the model refers to fully recessive, high effect size alleles (e.g. lethals).
+#' For complex pedigrees, involving more than one autozygous individual per
+#' path from a reference individual to an ancestor, these estimates are
+#' estimated following an heuristic approach (see details below).
 #' 
 #' In simple pedigrees, the opportunity of purging (\emph{O}) and the expressed
 #' opportunity of purging (\emph{Oe}) are estimated as in Gulisija and Crow (2007).
@@ -33,11 +33,12 @@
 #' 
 #' @template ped-arg
 #' @param complex Enable correction for complex pedigrees.
-#' @param name_O A string naming the new output column for total opportunity of purging (defaults to "O") 
 #' @param name_Oe A string naming the new output column for the expressed opportunity of purging (defaults to "Oe")
+#' @param compute_O Enable computation of total opportunity of purging (disabled by default)
+#' @param name_O A string naming the new output column for total opportunity of purging (defaults to "O") 
 #' @template Fcol-arg
 #' @template ncores-arg
-#' @return The input dataframe, plus two additional columns containing total and expressed opportunity of purging measures (named "O" and "Oe" by default).
+#' @return The input dataframe, plus an additional column containing \emph{Oe} estimates (and additional column for \emph{O} can appended by enabling \emph{compute_O}).
 #' @seealso \code{\link{ip_Fij}}
 #' @encoding UTF-8
 #' @references
@@ -52,9 +53,9 @@
 #'   sire = c("0", "0", "0", "J", "a", "J", "b", "b", "d")
 #' )
 #' pedigree <- purgeR::ped_rename(pedigree)
-#' ip_op(pedigree)
+#' ip_op(pedigree, compute_O = TRUE)
 #' @export
-ip_op <- function(ped, complex = TRUE, name_O = "O", name_Oe = "Oe", Fcol = NULL, ncores = 1L) {
+ip_op <- function(ped, complex = TRUE, name_Oe = "Oe", compute_O = FALSE, name_O = "O", Fcol = NULL, ncores = 1L) {
   check_basic(ped, "id", "dam", "sire")
   check_bool(complex)
   F_ <- check_Fcol(ped, Fcol)
@@ -62,5 +63,5 @@ ip_op <- function(ped, complex = TRUE, name_O = "O", name_Oe = "Oe", Fcol = NULL
   check_not_col(base::colnames(ped), name_Oe)
 
   pkm <- ip_Fij(ped, mode = "all", Fcol = Fcol, ncores = ncores)
-  .Call(`_purgeR_op`, ped, pkm, Fcol = F_, name_O, name_Oe, complex)
+  .Call(`_purgeR_op`, ped, pkm, Fcol = F_, name_O, name_Oe, compute_O, complex)
 }

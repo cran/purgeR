@@ -41,7 +41,6 @@ DataFrame ancestors(Rcpp::DataFrame ped,
   Rcpp::IntegerVector dam = ped[dam_col];
   Rcpp::IntegerVector sire = ped[sire_col];
   R_xlen_t N = ped.rows();
-  int idxmin = min(rp_idx);
   int idxmax = max(rp_idx);
   int Nmax = idxmax + 1;
 

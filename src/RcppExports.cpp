@@ -74,8 +74,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // op
-Rcpp::DataFrame op(Rcpp::DataFrame ped, Rcpp::NumericMatrix pi, Rcpp::NumericVector Fi, std::string name_O, std::string name_Oe, bool complex);
-RcppExport SEXP _purgeR_op(SEXP pedSEXP, SEXP piSEXP, SEXP FiSEXP, SEXP name_OSEXP, SEXP name_OeSEXP, SEXP complexSEXP) {
+Rcpp::DataFrame op(Rcpp::DataFrame ped, Rcpp::NumericMatrix pi, Rcpp::NumericVector Fi, std::string name_O, std::string name_Oe, bool compute_O, bool complex);
+RcppExport SEXP _purgeR_op(SEXP pedSEXP, SEXP piSEXP, SEXP FiSEXP, SEXP name_OSEXP, SEXP name_OeSEXP, SEXP compute_OSEXP, SEXP complexSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -84,8 +84,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type Fi(FiSEXP);
     Rcpp::traits::input_parameter< std::string >::type name_O(name_OSEXP);
     Rcpp::traits::input_parameter< std::string >::type name_Oe(name_OeSEXP);
+    Rcpp::traits::input_parameter< bool >::type compute_O(compute_OSEXP);
     Rcpp::traits::input_parameter< bool >::type complex(complexSEXP);
-    rcpp_result_gen = Rcpp::wrap(op(ped, pi, Fi, name_O, name_Oe, complex));
+    rcpp_result_gen = Rcpp::wrap(op(ped, pi, Fi, name_O, name_Oe, compute_O, complex));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -153,7 +154,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_purgeR_Fa", (DL_FUNC) &_purgeR_Fa, 5},
     {"_purgeR_g", (DL_FUNC) &_purgeR_g, 4},
     {"_purgeR_hwd", (DL_FUNC) &_purgeR_hwd, 2},
-    {"_purgeR_op", (DL_FUNC) &_purgeR_op, 6},
+    {"_purgeR_op", (DL_FUNC) &_purgeR_op, 7},
     {"_purgeR_Fij_core_i_cpp", (DL_FUNC) &_purgeR_Fij_core_i_cpp, 4},
     {"_purgeR_ancestors", (DL_FUNC) &_purgeR_ancestors, 6},
     {"_purgeR_rename", (DL_FUNC) &_purgeR_rename, 5},

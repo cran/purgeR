@@ -12,7 +12,7 @@
 
 <meta name="author" content="Eugenio López-Cortegano" />
 
-<meta name="date" content="2021-05-02" />
+<meta name="date" content="2021-07-11" />
 
 <title>Inbreeding and Purging Estimates</title>
 
@@ -318,11 +318,11 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Inbreeding and Purging Estimates</h1>
 <h4 class="author">Eugenio López-Cortegano</h4>
-<h4 class="date">2021-05-02</h4>
+<h4 class="date">2021-07-11</h4>
 
 
 
-<p>This vignette is provides a practical guide on how to use functions in purgeR to estimate parameters related to inbreeding and purging using estimates obtained with functions from purgeR. For illustrative purposes, we will estimate here the magnitude of the inbreeding load (<span class="math inline">\(B\)</span>) and the purging coefficient (<span class="math inline">\(d\)</span>) using different approaches. Note however that this guide is not exhaustive. Different methods to those applied here could be used to estimate these parameters, as well as alternative models of inbreeding and purging. For example, purging models could be based on ancestral inbreeding (e.g. Boakes et al. 2007) or the individual reduction in inbreeding load (e.g. Gulisija and Crow 2007). If you haven’t, read the ‘purgeR-tutorial’ vignette for a more concise and complete introduction to functions in purgeR.</p>
+<p>This vignette provides a practical guide on how to use functions in purgeR to estimate parameters related to inbreeding and purging using estimates obtained with functions from purgeR. For illustrative purposes, we will estimate here the magnitude of the inbreeding load (<span class="math inline">\(B\)</span>) and the purging coefficient (<span class="math inline">\(d\)</span>) using different approaches. Note however that this guide is not exhaustive. Different methods to those applied here could be used to estimate these parameters, as well as alternative models of inbreeding and purging. For example, purging models could be based on ancestral inbreeding (e.g. Boakes et al. 2007) or the individual reduction in inbreeding load (e.g. Gulisija and Crow 2007). If you haven’t, read the ‘purgeR-tutorial’ vignette for a more concise and complete introduction to functions in purgeR.</p>
 <p>Below, we assume Morton et al. (1956) multiplicative model of fitness to fit and predict inbreeding and purging models, and some examples are used in sections below. Under this model, the expected fitness (<span class="math inline">\(E(W)\)</span>) can be calculated as:</p>
 <p><span class="math display">\[E(W) = W_{0} \cdot e^{BF+AX}\]</span> Where <span class="math inline">\(B\)</span> is the inbreeding depression rate, <span class="math inline">\(F\)</span> is the inbreeding coefficient, and <span class="math inline">\(A\)</span> and <span class="math inline">\(X\)</span> represent additional regression coefficient and predictor terms associated with other possible factors affecting fitness (e.g. environmental effects).</p>
 <div id="estimating-inbreeding-depression" class="section level3">
@@ -359,7 +359,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="working-with-more-complex-models" class="section level3">
 <h3>Working with more complex models</h3>
-<p>The same principle can be applied to more complex models that include terms associated to inbreeding (like <span class="math inline">\(F\)</span> in previous examples), but also others associated to genetic purging, and environmental factors. Similarly, different statistic methods can be applied, making the most of R extensive package library.</p>
+<p>The same principle can be applied to more complex models that include terms associated with inbreeding (like <span class="math inline">\(F\)</span> in previous examples), but also others associated with genetic purging, and environmental factors. Similarly, different statistical methods can be applied, making the most of R extensive package library.</p>
 <p>One remarkable example is making use of the Classification And REgression Training (<code>caret</code>) R package. Providing more complex and exhaustive examples using this library falls out of the scope of this tutorial, but as a naive example, a regularized logistic regression method is used below to fit a training set with <em>N. dama</em> data, and estimate regression coefficient terms on a model including standard and ancestral inbreeding as genetic factors, plus year of birth and period of management as environmental factors. The confusion matrix shows that the model has little predictive value though.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">set.seed</span>(<span class="dv">1234</span>)</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2">vars &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;survival15&quot;</span>, <span class="st">&quot;Fi&quot;</span>, <span class="st">&quot;Fa&quot;</span>, <span class="st">&quot;yob&quot;</span>, <span class="st">&quot;pom&quot;</span>)</a>
@@ -374,7 +374,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb3-11" data-line-number="11">m &lt;-<span class="st"> </span>caret<span class="op">::</span><span class="kw">train</span>(<span class="kw">factor</span>(survival15) <span class="op">~</span>., <span class="dt">data =</span> df_test, <span class="dt">method =</span> <span class="st">&quot;glmnet&quot;</span>)</a>
 <a class="sourceLine" id="cb3-12" data-line-number="12">stats<span class="op">::</span><span class="kw">predict</span>(m<span class="op">$</span>finalModel, <span class="dt">type =</span> <span class="st">&quot;coefficients&quot;</span>, <span class="dt">s =</span> m<span class="op">$</span>bestTune<span class="op">$</span>lambda)</a>
 <a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt; 5 x 1 sparse Matrix of class &quot;dgCMatrix&quot;</span></a>
-<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt;                      1</span></a>
+<a class="sourceLine" id="cb3-14" data-line-number="14"><span class="co">#&gt;                     s1</span></a>
 <a class="sourceLine" id="cb3-15" data-line-number="15"><span class="co">#&gt; (Intercept)  2.2594269</span></a>
 <a class="sourceLine" id="cb3-16" data-line-number="16"><span class="co">#&gt; Fi          -4.8140731</span></a>
 <a class="sourceLine" id="cb3-17" data-line-number="17"><span class="co">#&gt; Fa          -0.1841322</span></a>
@@ -482,7 +482,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="estimating-the-purging-coefficient-bayesian-example" class="section level3">
 <h3>Estimating the purging coefficient: Bayesian example</h3>
-<p>Above we have used regression methods to obtain maximum likelihood estimates of different inbreeding and purging parameters, but we could also take a Bayesian approach using R functions, and ask about the posterior distribution of some of these parameters. Below, we focus on the re-estimation of the inbreeding load and the purging coefficient using Approximate Bayesian Computation (ABC). Again, this is intended to provide an example of use, and we warn that the summary statistic used as well as the threshold value have not been extensively tested. A good review on ABC methods and best practices can be found in Beaumont (2010).</p>
+<p>Above we have used regression methods to obtain maximum likelihood estimates of different inbreeding and purging parameters, but we could also take a Bayesian approach using R functions, and ask about the posterior distribution of some of these parameters. Below, we focus on the re-estimation of the inbreeding load and the purging coefficient using Approximate Bayesian Computation (ABC). Again, this is intended to provide an example of use, and we warn that the summary statistics used as well as the threshold value have not been extensively tested. A good review on ABC methods and best practices can be found in Beaumont (2010).</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># Initialize observed data</span></a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">data</span>(dama)</a>
 <a class="sourceLine" id="cb6-3" data-line-number="3">dama &lt;-<span class="st"> </span>dama <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">ip_F</span>()</a>
@@ -540,7 +540,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <a class="sourceLine" id="cb6-55" data-line-number="55"><span class="co"># Get the posterior distribution for the purging coefficient and delta</span></a>
 <a class="sourceLine" id="cb6-56" data-line-number="56"><span class="co"># A third column with the RSS values is also returned</span></a>
 <a class="sourceLine" id="cb6-57" data-line-number="57">posterior &lt;-<span class="st"> </span><span class="kw">MCMC_ABC</span>(dama, <span class="dt">niter =</span> <span class="dv">5100</span>, <span class="dt">nburn =</span> <span class="dv">100</span>, <span class="dt">nthin =</span> <span class="dv">50</span>, <span class="dt">threshold =</span> t<span class="op">*</span><span class="fl">1.005</span>)</a></code></pre></div>
-<p>We could now make some basic checks on the MCMC chain generated, including convergence and auto-correlation test. In this case, the generated MCMC chain passes Heidelberger and Welch’s convergence test, that auto-correlation is low given the thinning interval used, and that the effective number of samples is close to 1000 (code not run here).</p>
+<p>We could now make some basic checks on the MCMC chain generated, including convergence and auto-correlation tests. In this case, the generated MCMC chain passes Heidelberger and Welch’s convergence test, that auto-correlation is low given the thinning interval used, and that the effective number of samples is close to 1000 (code not run here).</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">posterior[, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>] <span class="op">%&gt;%</span><span class="st"> </span>base<span class="op">::</span><span class="kw">plot</span>()</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2">posterior[, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>] <span class="op">%&gt;%</span><span class="st"> </span>coda<span class="op">::</span><span class="kw">heidel.diag</span>()</a>
 <a class="sourceLine" id="cb7-3" data-line-number="3">posterior[, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>] <span class="op">%&gt;%</span><span class="st"> </span>coda<span class="op">::</span><span class="kw">autocorr.diag</span>()</a>

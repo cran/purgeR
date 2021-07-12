@@ -9,7 +9,8 @@ check_basic(
   id_name = "id",
   dam_name = "dam",
   sire_name = "sire",
-  when_rename = FALSE
+  when_rename = FALSE,
+  when_sort = FALSE
 )
 }
 \arguments{
@@ -21,7 +22,9 @@ check_basic(
 
 \item{sire_name}{Column name for sire.}
 
-\item{when_rename}{True when called from ped_rename function}
+\item{when_rename}{True when called from ped_rename function. It softs checks on individual ID column name and types}
+
+\item{when_sort}{True when called from ped_sort function. It softs checks on pedigree sorting}
 }
 \value{
 No return value. Will print an error message if checking fail.

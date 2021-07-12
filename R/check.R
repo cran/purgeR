@@ -6,9 +6,10 @@
 #' @name check_basic
 #' @template ped-arg
 #' @inheritParams check_names
-#' @param when_rename True when called from ped_rename function
+#' @param when_rename True when called from ped_rename function. It softs checks on individual ID column name and types
+#' @param when_sort True when called from ped_sort function. It softs checks on pedigree sorting
 #' @template check-return
-check_basic <- function(ped, id_name = "id", dam_name = "dam", sire_name = "sire", when_rename = FALSE) {
+check_basic <- function(ped, id_name = "id", dam_name = "dam", sire_name = "sire", when_rename = FALSE, when_sort = FALSE) {
   check_df(ped)
   check_names(ped, id_name = id_name, dam_name = dam_name, sire_name = sire_name); # if id, dam and sire columns exist
   id_vector <- base::as.vector(base::unlist(ped[, id_name]))
@@ -16,7 +17,7 @@ check_basic <- function(ped, id_name = "id", dam_name = "dam", sire_name = "sire
   sire_vector <- base::as.vector(base::unlist(ped[, sire_name]))
   check_zero_id(id_vector); # ids named 0
   check_repeat_id(id_vector); # repeated ids
-  check_order(id = id_vector, dam = dam_vector, sire = sire_vector); # parents declared before descendants
+  check_order(id = id_vector, dam = dam_vector, sire = sire_vector, when_sort); # parents declared before descendants
   #check_selfing(copy_ped, id, dam, sire); // selfing and id==(dam||sire)
   if (!when_rename) {
     check_types(id_vector,  dam_vector, sire_vector);
@@ -90,8 +91,9 @@ check_repeat_id <- function(id) {
 #' @param id Vector of individual ids.
 #' @param dam Vector of dam ids.
 #' @param sire Vector of sire ids.
+#' @param soft_sorting If TRUE checking is relaxed, allowing descendants to be declared before ancestors
 #' @template check-return
-check_order <- function(id, dam, sire) {
+check_order <- function(id, dam, sire, soft_sorting = FALSE) {
   N <- base::length(id)
   for (i in 1:N) {
     if (is.na(id[i])) stop("Individual ids cannot contain missing values (NA)")
@@ -101,7 +103,7 @@ check_order <- function(id, dam, sire) {
     if (!is.na(sire[i])) {
       if (id[i] == sire[i]) stop("Individuals cannot be born from themselves!")
     }
-    if (id[i] %in% dam[1:i] || id[i] %in% sire[1:i]) stop("Dams and sires must be declared before their offspring!")
+    if (!soft_sorting & ((id[i] %in% dam[1:i]) || (id[i] %in% sire[1:i]))) stop("Dams and sires must be declared before their offspring!")
   }
 }
 

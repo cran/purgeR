@@ -7,10 +7,10 @@
 #' in the package.
 #' 
 #' @template ped-arg
-#' @param id A string naming the column with individual identities. It will be renamed to its default value 'id'.
-#' @param dam A string naming the column with maternal identities. It will be renamed to its default value 'dam'.
-#' @param sire A string naming the column with paternal identities. It will be renamed to its default value 'sire'.
-#' @param keep_names A boolean value indicating whether the original identity values should be kept on a separate column (named 'names'), or not.
+#' @template id-arg
+#' @template dam-arg
+#' @template sire-arg
+#' @template keepnames-arg
 #' @return A dataframe with the pedigree's identities renamed.
 #' @seealso \code{\link{ped_clean}}
 #' @examples

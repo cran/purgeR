@@ -26,6 +26,7 @@ There are currently two vignettes available:
 \itemize{
 \item{\strong{Preprocessing}}{
   \item{\code{\link{ped_rename}} - } Rename individuals in a pedigree from 1 to N
+  \item{\code{\link{ped_sort}} - } Sort individuals (with ancestors on top of descendants)
   \item{\code{\link{ped_clean}} - } Remove individuals not used for purging analyses
   \item{\code{\link{ped_maternal}} - }{Maternal effects}
 }
@@ -67,5 +68,5 @@ Source code is available via the GitLab repository at \url{https://gitlab.com/el
 Some users might find useful the C++ software PURGd, which computes inbreeding-purging parameters and follow-up statistical analyses: \url{https://gitlab.com/elcortegano/PURGd/}.
 }
 \author{
-Eugenio López-Cortegano <elcortegano@gmail.com> (\href{https://orcid.org/0000-0001-6914-6305/}{ORCID})
+Eugenio López-Cortegano <elcortegano@gmail.com> (\href{https://orcid.org/0000-0001-6914-6305}{ORCID})
 }

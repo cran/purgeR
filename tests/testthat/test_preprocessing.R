@@ -109,3 +109,18 @@ testthat::test_that("Impossible pedigrees should always return error", {
   ped_error <- data.frame(id = c(1L, 4L, 3L), dam = c(0L, 0L, 1L), sire = c(0L, 0L, 4L))
   testthat::expect_error(purgeR::ped_clean(ped_error, value_from =  "prod"))
 })
+
+testthat::test_that("Sort pedigrees", {
+  # Sort pedigree with IDs as characters
+  set.seed(1234)
+  darwin_unsort <- darwin[base::sample(1:nrow(darwin)),]
+  testthat::expect_error(purgeR::ip_F(darwin_unsort))
+  darwin_sort <- purgeR::ped_sort(darwin_unsort, id = "Individual", dam = "Mother", sire = "Father")
+  darwin_rename <- purgeR::ped_rename(darwin, id = "Individual", dam = "Mother", sire = "Father", keep_names = TRUE)
+  testthat::expect_equal(mean(purgeR::ip_F(darwin_rename)$Fi), mean(purgeR::ip_F(darwin_sort)$Fi))
+  # Sort pedigree with IDs as integers
+  arrui_unsort <- arrui[base::sample(1:nrow(arrui)),]
+  testthat::expect_error(purgeR::ip_F(arrui_unsort))
+  arrui_sort <- purgeR::ped_sort(arrui_unsort)
+  testthat::expect_equal(mean(purgeR::ip_F(arrui)$Fi), mean(purgeR::ip_F(arrui_sort)$Fi))
+})

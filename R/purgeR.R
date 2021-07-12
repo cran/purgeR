@@ -17,6 +17,7 @@
 #' \itemize{
 #' \item{\strong{Preprocessing}}{
 #'   \item{\code{\link{ped_rename}} - } Rename individuals in a pedigree from 1 to N
+#'   \item{\code{\link{ped_sort}} - } Sort individuals (with ancestors on top of descendants)
 #'   \item{\code{\link{ped_clean}} - } Remove individuals not used for purging analyses
 #'   \item{\code{\link{ped_maternal}} - }{Maternal effects}
 #' }
@@ -50,7 +51,7 @@
 #' @docType package
 #' @name purgeR
 #' @aliases purgeR-package
-#' @author Eugenio López-Cortegano <elcortegano@@gmail.com> (\href{https://orcid.org/0000-0001-6914-6305/}{ORCID})
+#' @author Eugenio López-Cortegano <elcortegano@@gmail.com> (\href{https://orcid.org/0000-0001-6914-6305}{ORCID})
 #' @encoding UTF-8
 #' @references López-Cortegano E. 2021. purgeR: Inbreeding and purging in pedigreed populations. *Pending revision*.
 #' @seealso
