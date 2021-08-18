@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // reproductive_value
 Rcpp::DataFrame reproductive_value(Rcpp::DataFrame ped, Rcpp::LogicalVector reference, std::string name_to, Nullable<Rcpp::LogicalVector> target, bool enable_correction);
 RcppExport SEXP _purgeR_reproductive_value(SEXP pedSEXP, SEXP referenceSEXP, SEXP name_toSEXP, SEXP targetSEXP, SEXP enable_correctionSEXP) {
@@ -74,8 +79,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // op
-Rcpp::DataFrame op(Rcpp::DataFrame ped, Rcpp::NumericMatrix pi, Rcpp::NumericVector Fi, std::string name_O, std::string name_Oe, bool compute_O, bool complex);
-RcppExport SEXP _purgeR_op(SEXP pedSEXP, SEXP piSEXP, SEXP FiSEXP, SEXP name_OSEXP, SEXP name_OeSEXP, SEXP compute_OSEXP, SEXP complexSEXP) {
+Rcpp::DataFrame op(Rcpp::DataFrame ped, Rcpp::NumericMatrix pi, Rcpp::NumericVector Fi, std::string name_O, std::string name_Oe, std::string sufix, bool compute_O);
+RcppExport SEXP _purgeR_op(SEXP pedSEXP, SEXP piSEXP, SEXP FiSEXP, SEXP name_OSEXP, SEXP name_OeSEXP, SEXP sufixSEXP, SEXP compute_OSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -84,23 +89,26 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type Fi(FiSEXP);
     Rcpp::traits::input_parameter< std::string >::type name_O(name_OSEXP);
     Rcpp::traits::input_parameter< std::string >::type name_Oe(name_OeSEXP);
+    Rcpp::traits::input_parameter< std::string >::type sufix(sufixSEXP);
     Rcpp::traits::input_parameter< bool >::type compute_O(compute_OSEXP);
-    Rcpp::traits::input_parameter< bool >::type complex(complexSEXP);
-    rcpp_result_gen = Rcpp::wrap(op(ped, pi, Fi, name_O, name_Oe, compute_O, complex));
+    rcpp_result_gen = Rcpp::wrap(op(ped, pi, Fi, name_O, name_Oe, sufix, compute_O));
     return rcpp_result_gen;
 END_RCPP
 }
 // Fij_core_i_cpp
-Rcpp::NumericVector Fij_core_i_cpp(Rcpp::DataFrame ped, const int& anc_idx, Rcpp::LogicalVector mapa, Rcpp::NumericVector Fi);
-RcppExport SEXP _purgeR_Fij_core_i_cpp(SEXP pedSEXP, SEXP anc_idxSEXP, SEXP mapaSEXP, SEXP FiSEXP) {
+Rcpp::NumericVector Fij_core_i_cpp(Rcpp::IntegerVector dam, Rcpp::IntegerVector sire, const int& anc_idx, Rcpp::LogicalVector mapa, Rcpp::NumericVector Fi, int genedrop, Rcpp::Nullable<int> seed);
+RcppExport SEXP _purgeR_Fij_core_i_cpp(SEXP damSEXP, SEXP sireSEXP, SEXP anc_idxSEXP, SEXP mapaSEXP, SEXP FiSEXP, SEXP genedropSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type ped(pedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type dam(damSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type sire(sireSEXP);
     Rcpp::traits::input_parameter< const int& >::type anc_idx(anc_idxSEXP);
     Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type mapa(mapaSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type Fi(FiSEXP);
-    rcpp_result_gen = Rcpp::wrap(Fij_core_i_cpp(ped, anc_idx, mapa, Fi));
+    Rcpp::traits::input_parameter< int >::type genedrop(genedropSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<int> >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(Fij_core_i_cpp(dam, sire, anc_idx, mapa, Fi, genedrop, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -155,7 +163,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_purgeR_g", (DL_FUNC) &_purgeR_g, 4},
     {"_purgeR_hwd", (DL_FUNC) &_purgeR_hwd, 2},
     {"_purgeR_op", (DL_FUNC) &_purgeR_op, 7},
-    {"_purgeR_Fij_core_i_cpp", (DL_FUNC) &_purgeR_Fij_core_i_cpp, 4},
+    {"_purgeR_Fij_core_i_cpp", (DL_FUNC) &_purgeR_Fij_core_i_cpp, 7},
     {"_purgeR_ancestors", (DL_FUNC) &_purgeR_ancestors, 6},
     {"_purgeR_rename", (DL_FUNC) &_purgeR_rename, 5},
     {"_purgeR_evaluate", (DL_FUNC) &_purgeR_evaluate, 2},

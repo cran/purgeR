@@ -8,9 +8,9 @@
 #' @param sire_offspring Compute sire offspring (TRUE by default).
 #' @return The input dataframe, plus an additional column indicating the total number of offspring.
 #' @examples
-#' data(dama)
-#' dama <- w_offspring(dama, name_to = "P")
-#' head(dama)
+#' data(arrui)
+#' dama <- w_offspring(arrui, name_to = "P")
+#' head(arrui)
 #' @export
 w_offspring <- function(ped, name_to, dam_offspring = TRUE, sire_offspring = TRUE) {
 
@@ -44,9 +44,9 @@ w_offspring <- function(ped, name_to, dam_offspring = TRUE, sire_offspring = TRU
 #' @template nameto-arg
 #' @return The input dataframe, plus an additional column indicating the total number of grandoffspring.
 #' @examples
-#' data(dama)
-#' dama <- w_grandoffspring(dama, name_to = "G")
-#' head(dama)
+#' data(arrui)
+#' dama <- w_grandoffspring(arrui, name_to = "G")
+#' head(arrui)
 #' @export
 w_grandoffspring <- function(ped, name_to) {
   

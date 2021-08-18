@@ -43,8 +43,8 @@ std::vector<std::set<int>> map_ancestor_ibd (Rcpp::IntegerVector, Rcpp::IntegerV
 //' @template Fi-arg
 //' @param name_O A string naming the new output column for total opportunity of purging (defaults to "O") 
 //' @param name_Oe A string naming the new output column for the expressed opportunity of purging (defaults to "Oe")
+//' @param sufix A string naming the sufix for non-corrected O and Oe measures
 //' @param compute_O Enable computation of total opportunity of purging (false by default)
-//' @param complex Enable correction for complex pedigrees.
 //' @return The input dataframe, plus two additional column named "O" and "Oe", containing total and expressed opportunity of purging measures.
 //' @encoding UTF-8
 //' @references
@@ -57,8 +57,8 @@ Rcpp::DataFrame op(Rcpp::DataFrame ped,
                    Rcpp::NumericVector Fi,
                    std::string name_O,
                    std::string name_Oe,
-                   bool compute_O = false,
-                   bool complex = true) {
+                   std::string sufix,
+                   bool compute_O = false) {
   
   // Check errors
   Rcpp::IntegerVector id = ped[id_col];
@@ -72,6 +72,8 @@ Rcpp::DataFrame op(Rcpp::DataFrame ped,
   // Compute opportunity of purging measures
   Rcpp::NumericVector O;
   Rcpp::NumericVector E;
+  Rcpp::NumericVector O_raw;
+  Rcpp::NumericVector E_raw;
   bool display_progress = true;
   Rcpp::Rcerr << "Computing opportunity of purging values... " << std::endl;
   Progress p(N, display_progress);
@@ -81,11 +83,13 @@ Rcpp::DataFrame op(Rcpp::DataFrame ped,
   for (int i(0); i<N; ++i) {
 
     double Ei = 0.0;
+    double Ei_raw = 0.0;
 
     // Compute O (loop over all i's inbred ancestors)
     std::set<int> ancestors_inbred;
     if (compute_O) {
       double Oi = 0.0;
+      double Oi_raw = 0.0;
       ancestors_inbred = ancestors_ibd[i];
       for (const auto& ancestor: ancestors_inbred) {
         // Skip if ancestor's inbreeding O and Oe is already accounted by a previous ancestor
@@ -103,13 +107,17 @@ Rcpp::DataFrame op(Rcpp::DataFrame ped,
             break;
           }
         }
-        if (skip & complex) continue;
         std::vector<int> path_n;
         map_ij_distance (id[i], ancestor, dam, sire, path_n, 1);
         double Fancestor_test (Fi[ancestor-1]);
-        for (const auto& n: path_n) Oi += pow(0.5, n-1)*Fancestor_test;
+        double O_cont = 0.0;
+        for (const auto& n: path_n) O_cont += pow(0.5, n-1)*Fancestor_test;
+        Oi_raw += O_cont;
+        if (skip) continue;
+        Oi += O_cont;
       }
       O.push_back(Oi);
+      O_raw.push_back(Oi_raw);
     }
 
     // Compute Oe (loop over all ancestors common to i's parents)
@@ -132,18 +140,25 @@ Rcpp::DataFrame op(Rcpp::DataFrame ped,
           break;
         }
       }
-      if (skip & complex) continue;
-      // Compute Oe only for recent ancestors
       double Fancestor (Fi[ancestor-1]);
-      Ei += pi(i, ancestor-1)*Fancestor;
+      double E_cont = pi(i, ancestor-1)*Fancestor;
+      Ei_raw += E_cont;
+      if (skip) continue;
+      // Compute Oe only for recent ancestors
+      Ei += E_cont;
     }
     E.push_back(2.0*Ei);
+    E_raw.push_back(2.0*Ei_raw);
     p.increment(); // update progress
     Rcpp::checkUserInterrupt(); // check cancellation from user
   }
 
-  if (compute_O) ped[name_O] = O;
+  if (compute_O) {
+    ped[name_O] = O;
+    ped[name_O + sufix] = O_raw;
+  }
   ped[name_Oe] = E;
+  ped[name_Oe + sufix] = E_raw;
   return ped;
 }
 

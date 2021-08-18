@@ -4,16 +4,22 @@
 \alias{Fij_core_i_cpp}
 \title{Partial inbreeding coefficient (core function)}
 \usage{
-Fij_core_i_cpp(ped, anc_idx, mapa, Fi)
+Fij_core_i_cpp(dam, sire, anc_idx, mapa, Fi, genedrop = 0L, seed = NULL)
 }
 \arguments{
-\item{ped}{A dataframe containing the pedigree. Individual (id), maternal (dam), and paternal (sire) identities are mandatory columns.}
+\item{dam}{Vector of dam ids.}
+
+\item{sire}{Vector of sire ids.}
 
 \item{anc_idx}{Index of ancestors.}
 
 \item{mapa}{Map of ancestors}
 
 \item{Fi}{Vector of inbreeding coefficients.}
+
+\item{genedrop}{Enable genedrop simulation}
+
+\item{seed}{Sets a seed for the random number generator.}
 }
 \value{
 A matrix of partial inbreeding coefficients. Fi(j) values can thus be read from row i and column j.

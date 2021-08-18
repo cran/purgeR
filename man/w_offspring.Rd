@@ -22,7 +22,7 @@ The input dataframe, plus an additional column indicating the total number of of
 Counts the number of offspring for individuals in the pedigree.
 }
 \examples{
-data(dama)
-dama <- w_offspring(dama, name_to = "P")
-head(dama)
+data(arrui)
+dama <- w_offspring(arrui, name_to = "P")
+head(arrui)
 }

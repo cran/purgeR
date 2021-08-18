@@ -20,19 +20,63 @@ knitr::opts_chunk$set(
 library(caret)
 library(coda)
 library(e1071)
-library(grid)
-library(purgeR)
-library(magrittr)
 library(ggplot2)
+library(glmnet)
+library(grid)
 library(gtable)
+library(magrittr)
 library(plyr)
+library(purgeR)
 library(purrr)
 library(stringr)
 ```
 
 This vignette provides a practical guide on how to use functions in purgeR to estimate parameters related to inbreeding and purging using estimates obtained with functions from purgeR. For illustrative purposes, we will estimate here the magnitude of the inbreeding load ($B$) and the purging coefficient ($d$) using different approaches. Note however that this guide is not exhaustive. Different methods to those applied here could be used to estimate these parameters, as well as alternative models of inbreeding and purging. For example, purging models could be based on ancestral inbreeding (e.g. Boakes et al. 2007) or the individual reduction in inbreeding load (e.g. Gulisija and Crow 2007). If you haven't, read the 'purgeR-tutorial' vignette for a more concise and complete introduction to functions in purgeR.
 
-Below, we assume Morton et al. (1956) multiplicative model of fitness to fit and predict inbreeding and purging models, and some examples are used in sections below. Under this model, the expected fitness ($E(W)$) can be calculated as:
+
+## Decline of individual inbreeding load
+
+The inbreeding load plays a determinant role in the survivability of small populations, and estimating its potential reduction is one of the main aims of genetic purging models. Following Gulisija and Crow (2007), the expected individual reduction in the inbreeding load component ascribed to high effect size, deleterious mutations, can be estimated from the expressed opportunity of purging ($O_{e}$), and normalized by the level of inbreeding ($O_{e}/F$, Gulisija and Crow 2007).
+
+Using the function `ip_op()`, only the pedigree structure is required to estimate these parameters. Taking the pedigree of the Barbary sheep (*A. lervia*) as an example, we compute the proportional reduction in inbreeding load ($B_{t=0}$) with generations as $(1-O_{e}/F$), so that at time $t$, the expected $B = B_{t=0}(1-O_{e}/F)$.
+
+```{r opportunity_of_purging, fig.align='center', fig.width=5}
+data(arrui)
+arrui <- arrui %>%
+  purgeR::ip_F() %>% 
+  purgeR::ip_op(Fcol = "Fi") %>%
+  dplyr::mutate(species = "A. lervia") %>%
+  purgeR::pop_t() %>% 
+  dplyr::mutate(t = plyr::round_any(t, 1))
+
+arrui %>%
+    dplyr::group_by(species, t) %>%
+    dplyr::summarise(Fi = mean(Fi),
+                     Oe = mean(Oe),
+                     Oe_raw = mean(Oe_raw),
+                     nOe = ifelse(Fi > 0, Oe/Fi, 0),
+                     nOe_raw = ifelse(Fi > 0, Oe_raw/Fi, 0)) %>%
+    ggplot(aes(x = t)) +
+    geom_area(aes(y = 1-nOe), fill = "blue", alpha = 0.5) +
+    geom_area(aes(y = 1-nOe_raw), fill = "red", alpha = 0.5) +
+    geom_line(aes(y = 1-nOe, color = "enabled"), size = 2) +
+    geom_line(aes(y = 1-nOe_raw, color = "disabled"), size = 2) +
+    facet_grid(. ~ species) +
+    scale_y_continuous(expression(paste("1 - ", O["e"], " / F", sep = "")), limits = c(0, 1)) +
+    scale_x_continuous("Equivalent to complete generations", breaks = c(0,1,2,3,4,5,6,7)) +
+    scale_color_manual("Correction", values = c(enabled  = "blue", disabled = "red")) +
+    theme(panel.background = element_blank(),
+          strip.text = element_text(size = 12, face = "italic"),
+          legend.position = "bottom")
+```
+
+The plots shows two different estimations of $O_e$. In blue, the default estimate enables the correction required for $O_{e}$ for complex pedigrees (Gulisija and Crow 2007), using the heuristic proposed by López-Cortegano (2021). In red, $O_{e}$ is estimated without correction terms (returned as 'Oe_raw' by `ip_op()`). It is expected that the actual reduction in inbreeding load ranges between the two estimates (see López-Cortegano 2021 for more exhaustive examples using populations simulated under different mutational models). Thus, in this case the figure suggest that in the last cohort analyzed in *A. lervia*, the inbreeding load of highly deleterious recessive mutations could have been reduced between 66 \% and 79 \% from its original value.
+
+Note that models based on purged inbreeding also allow to estimate inbreeding load decline (García-Dorado 2012), but these will require precise estimates of fitness and of the purging coefficient. Estimation of purging coefficients under this model is shown in sections below. 
+
+## Fitness change under inbreeding and purging
+
+In sections below, we assume Morton et al. (1956) multiplicative model of fitness to fit and predict inbreeding and purging models, and some examples are used in sections below. Under this model, the expected fitness ($E(W)$) can be calculated as:
 
 $$E(W) = W_{0} \cdot e^{BF+AX}$$
 Where $B$ is the inbreeding depression rate, $F$ is the inbreeding coefficient, and $A$ and $X$ represent additional regression coefficient and predictor terms associated with other possible factors affecting fitness (e.g. environmental effects). 
@@ -42,7 +86,7 @@ Where $B$ is the inbreeding depression rate, $F$ is the inbreeding coefficient, 
 Using logarithms, the expression above becomes the equation of a line, which can be solved by simple linear regression:
   
 $$log[E(W)] = log(W_{0}) + BF + AX$$
-Taking Dama gazelle (*N. dama*) pedigree as an example, we could use this model to estimate the inbreeding depression rate on female productivity as follows:
+Taking Dama gazelle (*N. dama*) as an example pedigree, we could use this model to estimate the inbreeding depression rate on female productivity as follows:
   
 ```{r estimate_inbreeding_depression_prod}
 data(dama)
@@ -119,7 +163,7 @@ models[[which(aic_values == aic_best)]] %>% summary
 d_values[which(aic_values == aic_best)]
 ```
 
-This new estimate avoids problems derived from scale transformation. For example, the intercept (`r plyr::round_any(coefficients(models[[which(aic_values == aic_best)]])[1], 0.001)`) representing the expected fitness of non-inbred individuals is closer to the actual fitness of non-inbred individuals in the pedigree (`r plyr::round_any(dama %>% purgeR::ip_F() %>% dplyr::filter(!is.na(survival15), F==0) %>% .$survival15 %>% mean(), 0.001)`). Similarly, the estimate of the inbreeding depression rate ($B = `r plyr::round_any(coefficients(models[[which(aic_values == aic_best)]])[2], 0.001)`$) and the purging coefficient ($d = `r d_values[which(aic_values == aic_best)]`$) are closer to previously estimated values in this population.
+This new estimate avoids problems derived from scale transformation. For example, the intercept (`r plyr::round_any(coefficients(models[[which(aic_values == aic_best)]])[1], 0.001)`) representing the expected fitness of non-inbred individuals is closer to the actual fitness of non-inbred individuals in the pedigree (`r plyr::round_any(dama %>% purgeR::ip_F() %>% dplyr::filter(!is.na(survival15), F==0) %>% .$survival15 %>% mean(), 0.001)`). Similarly, the estimate of the inbreeding depression rate ($B = `r plyr::round_any(coefficients(models[[which(aic_values == aic_best)]])[2], 0.001)`$) and the purging coefficient ($d = `r d_values[which(aic_values == aic_best)]`$) are closer to previously estimated values in this population using PURGd (García-Dorado et al. 2016). Note however, that purgeR accuracy and performance when estimating $d$ is superior to that of PURGd (López-Cortegano 2021).
 
 ### Estimating the purging coefficient: Bayesian example
 
@@ -223,12 +267,37 @@ ggplot(data = df) +
 
 The plot above shows that the maximum likelihood estimate of $B$ and $d$ obtained above (marked with an **X**) falls within the joint distribution of the two parameters as expected. However, while the distribution of $d$ covers almost all the possible range of values [0.0, 0.5], we have better evidence that $B$ takes values below $B<2$ which can be considered a low value in agreement with previous estimates of this parameter in wild populations (O'Grady et al. 2006). In addition, we observe a linear association between $B$ and $d$, suggesting that if the actual purging coefficient estimated in the population were below the assumed maximum likelihood estimate of 0.22, the inbreeding load estimate would also be lower, indicating in all cases that generally the inbreeding load is expected to be largely purged in this population, and that fitness depression will be much lower than expected disregarding purging.
 
+### Fitness prediction
+
+We have used Morton et al (1956) model to compute predictions on the expected fitness conditional to estimates of the inbreeding load and purged inbreeding (and the purging coefficient). Below a plot is shown assuming $B=1$, $N_{e} = 50$ and fitness in the base population $W_{t=0}=1$. The black line represent the classical prediction of inbreeding depression based on $F$ increase, and the red one is a prediction using $g(d=0.10)$ for illustrative purposes.
+
+```{r exp_w, fig.align='center', fig.width=4}
+w0 <- 1
+B <- 1
+data.frame(t = 0:50) %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(Fi = exp_F(Ne = 50, t),
+                g = exp_g(Ne = 50, t, d = 0.10),
+                exp_WF = w0*exp(-B*Fi),
+                exp_Wg = w0*exp(-B*g)) %>%
+  tidyr::pivot_longer(cols = c(exp_WF, exp_Wg), names_to = "Model", values_to = "Ew") %>%
+  ggplot(aes(x = t, y = Ew, color = Model)) +
+  geom_line(size = 2) +
+  scale_x_continuous("Generations (t)") +
+  scale_y_continuous("Expected fitness [E(w)]", limits = c(0.5, 1)) +
+  scale_color_manual(labels = c("F-based", "g-based"), values = c("black", "red")) +
+  theme(legend.position = "bottom")
+```
+
+It is remarkable that even small $d$ estimates result in expectations of important fitness recovery. Hence, the importance of considering genetic purging theory in problems related to evolutionary biology and conservation.
+
 ## References
 
 - Beaumont MA. 2010. Approximate Bayesian computation in evolution and ecology. Annual Review of Ecology, Evolution, and Systematics 41: 379-406.
 - Boakes EH et al. 2007. An investigation of inbreeding depression and purging in captive pedigreed populations. Heredity 98: 172-182.
 - García-Dorado A. 2016. Predictive model and software for inbreeding-purging analysis of pedigreed populations. G3 6(11): 3593–3601.
 - Gulisija D and Crow JF. 2007. Inferring purging from pedigree data. Evolution 65(1): 1043-1051.
+- López-Cortegano E. 2021. purgeR: Inbreeding and purging in pedigreed populations. Bioinformatics, doi: https://doi.org/10.1093/bioinformatics/btab599.
 - López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Pending revision*.
 - Morton NE et al. 1956 An estimate of the mutational damage in man from data on consanguineous marriages. Proceedings of the National Academy of Sciences of the United States of America 42: 855-863.
 - O’Grady JJ et al.2006. Realistic levels of inbreeding depression strongly affect extinction risk in wild populations. Biological Conservation 133: 42-51.

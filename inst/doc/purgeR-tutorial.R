@@ -84,25 +84,28 @@ atlas %>%
   dplyr::select(id, dam, sire, Fi, tidyselect::starts_with("g")) %>%
   tail()
 
-## ----read_op, include=FALSE---------------------------------------------------
-arrui_op <- system.file("extdata", "arrui_op.rda", package = "purgeR")
-arrui_op <- base::readRDS(arrui_op)
-arrui_tmp <- arrui
-arrui <- arrui_op
+## ----inbreeding_all, fig.align='center', fig.width=5--------------------------
+data.frame(t = 0:50) %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(Fi = exp_F(Ne = 50, t),
+                Fa = exp_Fa(Ne = 50, t),
+                g = exp_g(Ne = 50, t, d = 0.25)) %>%
+  tidyr::pivot_longer(cols = c(Fi, Fa, g), names_to = "Type", values_to = "Inbreeding") %>%
+  ggplot(aes(x = t, y = Inbreeding, color = Type)) +
+  geom_line(size = 2) +
+  scale_x_continuous("Generations (t)") +
+  theme(legend.position = "bottom")
 
-## ----op, eval=FALSE-----------------------------------------------------------
-#  arrui <- arrui %>% ip_op(Fcol = "Fi")
-
-## ----op_plot, warning=FALSE, fig.align = 'center'-----------------------------
+## ----op_plot, warning=FALSE, fig.align = 'center', fig.width=5----------------
 arrui %>%
+  ip_op(Fcol = "Fi") %>% 
+  dplyr::filter(target == 1) %>% 
+  tidyr::pivot_longer(cols = c(Oe, Oe_raw)) %>%
   ggplot() +
-  geom_point(aes(x = yob, y = Oe/Fi, fill = Fi), pch = 21, size = 3, alpha = 0.8) +
-  scale_fill_gradient2(low = "blue", high = "red", midpoint = 0.4, mid = "white", space = "Lab") +
-  scale_y_continuous(expression(paste("Normalized ", O[e], sep=""))) +
-  scale_x_continuous("Year of birth")
-
-## ----recover_arrui, include=FALSE---------------------------------------------
-arrui <- arrui_tmp
+  geom_point(aes(x = Fi, y = (value), fill = name), pch = 21, size = 3, alpha = 0.5) +
+  scale_y_continuous(expression(paste("Expressed opportunity of purging (", O[e], ")", sep=""))) +
+  scale_x_continuous("Inbreeding coefficient (F)") +
+  scale_fill_discrete("")
 
 ## ----Ne-----------------------------------------------------------------------
 atlas %>%

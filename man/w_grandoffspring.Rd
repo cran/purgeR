@@ -18,7 +18,7 @@ The input dataframe, plus an additional column indicating the total number of gr
 Counts the number of grandoffspring for individuals in the pedigree.
 }
 \examples{
-data(dama)
-dama <- w_grandoffspring(dama, name_to = "G")
-head(dama)
+data(arrui)
+dama <- w_grandoffspring(arrui, name_to = "G")
+head(arrui)
 }

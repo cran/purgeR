@@ -67,7 +67,7 @@ following Boichard et al. (1997).
 }
 \examples{
 data(arrui)
-pop_Nancestors(arrui, reference = "target")
+pop_Nancestors(arrui, reference = "target", skip_Ng = TRUE)
 }
 \references{
 \itemize{

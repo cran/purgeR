@@ -30,13 +30,14 @@
 #' @export
 ped_sort <- function(ped, id = "id", dam = "dam", sire = "sire", keep_names = FALSE) {
   check_basic(ped, id_name = id, dam_name = dam, sire_name = sire, when_rename = TRUE, when_sort = TRUE)
-  p <- ped
+  p <- as.data.frame(ped)
   N <- base::nrow(p)
   S <- base::rep(x = TRUE, times = N)
   G <- base::rep(x = 0, times = N)
   t <- base::data.frame()
   t_G <- base::integer()
   ped <- sort_step(p, id, dam, sire, t, S, G, t_G)
+  check_nrows(ped, N)
   purgeR::ped_rename(ped, id, dam, sire, keep_names = keep_names)
 }
 

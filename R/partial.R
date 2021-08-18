@@ -4,6 +4,7 @@
 #' A coefficient \emph{Fi(j)} can be read as the probability of individual \emph{i} being
 #' homozygous for alleles derived from ancestor \emph{j}.
 #' It is calculated following the tabular method described by Gulisija & Crow (2007).
+#' Optionally, it can be estimated via genedrop simulation.
 #' 
 #' @template ped-arg
 #' @param mode Defines the set of ancestors considered when computing partial inbreeding. It can be set as:
@@ -13,6 +14,8 @@
 #' @param ancestors Under the "custom" run mode, it defines a vector of ancestors that will be considered
 #' when computing partial inbreeding values.
 #' @template Fcol-arg
+#' @param genedrop Number of genedrop iterations to run. If set to zero (as default), exact coefficients are computed.
+#' @param seed Sets a seed for the random number generator (only if genedrop is enabled).
 #' @template ncores-arg
 #' @return A matrix of partial inbreeding coefficients. \emph{Fi(j)} values can thus be read from row i and column j.
 #' In the resultant matrix, there are as many rows as individuals in the pedigree, and as many columns as ancestors used.
@@ -23,18 +26,26 @@
 #' }
 #' @seealso \code{\link{ip_F}}
 #' @examples
-#' data(arrui)
+#' # Original pedigree file in Gulisija & Crow (2007)
+#' pedigree <- tibble::tibble(
+#'   id = c("M", "K", "J", "a", "c", "b", "e", "d", "I"),
+#'   dam = c("0", "0", "0", "K", "M", "a", "c", "c", "e"),
+#'   sire = c("0", "0", "0", "J", "a", "J", "b", "b", "d")
+#' )
+#' pedigree <- purgeR::ped_rename(pedigree, keep_names = TRUE)
+#'
 #' # Partial inbreeding relative to founder ancestors
-#' m <- ip_Fij(arrui)
+#' m <- ip_Fij(pedigree)
 #' # Note that in the example above, the sum of the values in
 #' # rows will equal the vector of inbreeding coefficients
-#' # i.e. base::rowSums(m) equals purgeR::ip_F(arrui)$F
+#' # i.e. base::rowSums(m) equals purgeR::ip_F(pedigree)$Fi
 #' 
-#' # Compute partial inbreeding relative to an arbitrary ancestor with id = 6
-#' anc <- as.integer(c(6))
-#' m <- ip_Fij(arrui, mode = "custom", ancestors = anc)
+#' # Compute partial inbreeding relative to an arbitrary ancestor
+#' # with id = 3 (i.e. individual named "J")
+#' anc <- as.integer(c(3))
+#' m <- ip_Fij(pedigree, mode = "custom", ancestors = anc)
 #' @export
-ip_Fij <- function(ped, mode = "founders", ancestors = NULL, Fcol = NULL, ncores = 1L) {
+ip_Fij <- function(ped, mode = "founders", ancestors = NULL, Fcol = NULL, genedrop = 0,  seed = NULL, ncores = 1L) {
   
   # Checks and Initialize mode
   check_basic(ped, "id", "dam", "sire")
@@ -45,6 +56,8 @@ ip_Fij <- function(ped, mode = "founders", ancestors = NULL, Fcol = NULL, ncores
     check_ancestors(ped[, "id"], ancestors)
   }
   check_int(ncores)
+  check_int(genedrop)
+  if (!base::is.null(seed)) check_int(seed)
   
   # Set inbreeding
   F_ <- check_Fcol(ped, Fcol)
@@ -68,7 +81,7 @@ ip_Fij <- function(ped, mode = "founders", ancestors = NULL, Fcol = NULL, ncores
   mapa <- map_ancestors(ped, ancestors_idx)
 
   # Compute partial inbreeding
-  pi <- Fij_core(ped, ancestors_ids, ancestors_idx, F_, mapa, ncores)
+  pi <- Fij_core(ped, ancestors_ids, ancestors_idx, F_, mapa, ncores, genedrop, seed)
   pi
 }
 
@@ -127,12 +140,14 @@ map_ancestors <- function (ped, idx) {
 #' @param Fi Vector of inbreeding coefficients.
 #' @param mapa Map of ancestors
 #' @template ncores-arg
+#' @param genedrop Enable genedrop simulation
+#' @template seed-arg
 #' @return A matrix of partial inbreeding coefficients. Fi(j) values can thus be read from row i and column j.
 #' @import doSNOW
 #' @import foreach
 #' @import parallel
 #' @import progress
-Fij_core <- function(ped, ancestors, ancestors_idx, Fi, mapa, ncores = 1) {
+Fij_core <- function(ped, ancestors, ancestors_idx, Fi, mapa, ncores = 1, genedrop, seed) {
 
   N <- base::nrow(ped)
   M <- base::length(ancestors)
@@ -156,7 +171,7 @@ Fij_core <- function(ped, ancestors, ancestors_idx, Fi, mapa, ncores = 1) {
     for (i in 1:M) {
       pb$tick(0)
       map_i <- mapa[, i]
-      pi[, i] <- Fij_core_i_cpp(ped, ancestors[i] - 1, map_i, Fi)
+      pi[, i] <- Fij_core_i_cpp(ped$dam, ped$sire, ancestors[i] - 1, map_i, Fi, genedrop, seed)
       pb$tick()
     }
   } else {
@@ -175,7 +190,7 @@ Fij_core <- function(ped, ancestors, ancestors_idx, Fi, mapa, ncores = 1) {
                             .options.snow = opts
                             ) %dopar% {
       map_i <- mapa[, i]
-      pi[, i] <- Fij_core_i_cpp(ped, ancestors[i] - 1, map_i, Fi)
+      pi[, i] <- Fij_core_i_cpp(ped$dam, ped$sire, ancestors[i] - 1, map_i, Fi, genedrop, seed)
     }
     parallel::stopCluster(cl)
   }

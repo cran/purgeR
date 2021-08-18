@@ -54,7 +54,7 @@
 #'}
 #' @examples
 #' data(arrui)
-#' pop_Nancestors(arrui, reference = "target")
+#' pop_Nancestors(arrui, reference = "target", skip_Ng = TRUE)
 #' @export
 pop_Nancestors <- function(ped, reference, nboot = 10000L, seed = NULL, skip_Ng = FALSE) {
   check_basic(ped, "id", "dam", "sire")

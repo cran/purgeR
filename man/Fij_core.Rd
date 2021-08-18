@@ -4,7 +4,7 @@
 \alias{Fij_core}
 \title{Partial inbreeding coefficient (core function)}
 \usage{
-Fij_core(ped, ancestors, ancestors_idx, Fi, mapa, ncores = 1)
+Fij_core(ped, ancestors, ancestors_idx, Fi, mapa, ncores = 1, genedrop, seed)
 }
 \arguments{
 \item{ped}{A dataframe containing the pedigree. Individual (id), maternal (dam), and paternal (sire) identities are mandatory columns.}
@@ -18,6 +18,10 @@ Fij_core(ped, ancestors, ancestors_idx, Fi, mapa, ncores = 1)
 \item{mapa}{Map of ancestors}
 
 \item{ncores}{Number of cores to use for parallel computing (default = 1)}
+
+\item{genedrop}{Enable genedrop simulation}
+
+\item{seed}{Sets a seed for the random number generator.}
 }
 \value{
 A matrix of partial inbreeding coefficients. Fi(j) values can thus be read from row i and column j.

@@ -8,14 +8,44 @@ knitr::opts_chunk$set(
 library(caret)
 library(coda)
 library(e1071)
-library(grid)
-library(purgeR)
-library(magrittr)
 library(ggplot2)
+library(glmnet)
+library(grid)
 library(gtable)
+library(magrittr)
 library(plyr)
+library(purgeR)
 library(purrr)
 library(stringr)
+
+## ----opportunity_of_purging, fig.align='center', fig.width=5------------------
+data(arrui)
+arrui <- arrui %>%
+  purgeR::ip_F() %>% 
+  purgeR::ip_op(Fcol = "Fi") %>%
+  dplyr::mutate(species = "A. lervia") %>%
+  purgeR::pop_t() %>% 
+  dplyr::mutate(t = plyr::round_any(t, 1))
+
+arrui %>%
+    dplyr::group_by(species, t) %>%
+    dplyr::summarise(Fi = mean(Fi),
+                     Oe = mean(Oe),
+                     Oe_raw = mean(Oe_raw),
+                     nOe = ifelse(Fi > 0, Oe/Fi, 0),
+                     nOe_raw = ifelse(Fi > 0, Oe_raw/Fi, 0)) %>%
+    ggplot(aes(x = t)) +
+    geom_area(aes(y = 1-nOe), fill = "blue", alpha = 0.5) +
+    geom_area(aes(y = 1-nOe_raw), fill = "red", alpha = 0.5) +
+    geom_line(aes(y = 1-nOe, color = "enabled"), size = 2) +
+    geom_line(aes(y = 1-nOe_raw, color = "disabled"), size = 2) +
+    facet_grid(. ~ species) +
+    scale_y_continuous(expression(paste("1 - ", O["e"], " / F", sep = "")), limits = c(0, 1)) +
+    scale_x_continuous("Equivalent to complete generations", breaks = c(0,1,2,3,4,5,6,7)) +
+    scale_color_manual("Correction", values = c(enabled  = "blue", disabled = "red")) +
+    theme(panel.background = element_blank(),
+          strip.text = element_text(size = 12, face = "italic"),
+          legend.position = "bottom")
 
 ## ----estimate_inbreeding_depression_prod--------------------------------------
 data(dama)
@@ -160,4 +190,21 @@ ggplot(data = df) +
         axis.title = element_text(size = 12),
         axis.text = element_text(size = 10),
         legend.position = "none")
+
+## ----exp_w, fig.align='center', fig.width=4-----------------------------------
+w0 <- 1
+B <- 1
+data.frame(t = 0:50) %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(Fi = exp_F(Ne = 50, t),
+                g = exp_g(Ne = 50, t, d = 0.10),
+                exp_WF = w0*exp(-B*Fi),
+                exp_Wg = w0*exp(-B*g)) %>%
+  tidyr::pivot_longer(cols = c(exp_WF, exp_Wg), names_to = "Model", values_to = "Ew") %>%
+  ggplot(aes(x = t, y = Ew, color = Model)) +
+  geom_line(size = 2) +
+  scale_x_continuous("Generations (t)") +
+  scale_y_continuous("Expected fitness [E(w)]", limits = c(0.5, 1)) +
+  scale_color_manual(labels = c("F-based", "g-based"), values = c("black", "red")) +
+  theme(legend.position = "bottom")
 

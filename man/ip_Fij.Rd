@@ -4,7 +4,15 @@
 \alias{ip_Fij}
 \title{Partial inbreeding coefficient}
 \usage{
-ip_Fij(ped, mode = "founders", ancestors = NULL, Fcol = NULL, ncores = 1L)
+ip_Fij(
+  ped,
+  mode = "founders",
+  ancestors = NULL,
+  Fcol = NULL,
+  genedrop = 0,
+  seed = NULL,
+  ncores = 1L
+)
 }
 \arguments{
 \item{ped}{A dataframe containing the pedigree. Individual (id), maternal (dam), and paternal (sire) identities are mandatory columns.}
@@ -19,6 +27,10 @@ when computing partial inbreeding values.}
 
 \item{Fcol}{Name of column with inbreeding coefficient values. If none is used, inbreeding will be computed.}
 
+\item{genedrop}{Number of genedrop iterations to run. If set to zero (as default), exact coefficients are computed.}
+
+\item{seed}{Sets a seed for the random number generator (only if genedrop is enabled).}
+
 \item{ncores}{Number of cores to use for parallel computing (default = 1)}
 }
 \value{
@@ -31,18 +43,27 @@ Computes partial inbreeding coefficients, \emph{Fi(j)}.
 A coefficient \emph{Fi(j)} can be read as the probability of individual \emph{i} being
 homozygous for alleles derived from ancestor \emph{j}.
 It is calculated following the tabular method described by Gulisija & Crow (2007).
+Optionally, it can be estimated via genedrop simulation.
 }
 \examples{
-data(arrui)
+# Original pedigree file in Gulisija & Crow (2007)
+pedigree <- tibble::tibble(
+  id = c("M", "K", "J", "a", "c", "b", "e", "d", "I"),
+  dam = c("0", "0", "0", "K", "M", "a", "c", "c", "e"),
+  sire = c("0", "0", "0", "J", "a", "J", "b", "b", "d")
+)
+pedigree <- purgeR::ped_rename(pedigree, keep_names = TRUE)
+
 # Partial inbreeding relative to founder ancestors
-m <- ip_Fij(arrui)
+m <- ip_Fij(pedigree)
 # Note that in the example above, the sum of the values in
 # rows will equal the vector of inbreeding coefficients
-# i.e. base::rowSums(m) equals purgeR::ip_F(arrui)$F
+# i.e. base::rowSums(m) equals purgeR::ip_F(pedigree)$Fi
 
-# Compute partial inbreeding relative to an arbitrary ancestor with id = 6
-anc <- as.integer(c(6))
-m <- ip_Fij(arrui, mode = "custom", ancestors = anc)
+# Compute partial inbreeding relative to an arbitrary ancestor
+# with id = 3 (i.e. individual named "J")
+anc <- as.integer(c(3))
+m <- ip_Fij(pedigree, mode = "custom", ancestors = anc)
 }
 \references{
 \itemize{

@@ -203,6 +203,21 @@ check_length <- function(variable, message = "Expected value of length 1") {
   if (base::length(variable) > 1) stop(message)
 }
 
+#' Check observed and expected number of rows
+#'
+#' Expected and observed number of rows must be equal.
+#' 
+#' @name check_nrows
+#' @param df Dataframe to test
+#' @param exp Expected number of rows
+#' @param message Error message to display
+#' @template check-return
+check_nrows <- function(df, exp, message = "Expected value of length 1") {
+  check_df(df)
+  check_int(exp)
+  if (base::nrow(df) != exp) stop("Unexpected number of rows returned. Please contact the developer.")
+}
+
 #' Check columns with inbreeding values
 #'
 #' Takes a column name, and checks its use as inbreeding coefficient.

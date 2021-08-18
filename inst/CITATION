@@ -1,0 +1,20 @@
+citHeader("To cite purgeR in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "purgeR: Inbreeding and purging in pedigreed populations",
+  author   = personList(as.person("Eugenio López-Cortegano")),
+  journal  = "Bioinformatics",
+  year     = "2021",
+  volume   = "",
+  number   = "",
+  pages    = "",
+  url      = "https://doi.org/10.1093/bioinformatics/btab599",
+  textVersion  =
+  paste("Eugenio López-Cortegano",
+        "2021",
+        "purgeR: Inbreeding and purging in pedigreed populations",
+        "Bioinformatics",
+        "doi: https://doi.org/10.1093/bioinformatics/btab599",
+        sep = ". ")
+)

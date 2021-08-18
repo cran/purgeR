@@ -60,7 +60,9 @@ There are currently two vignettes available:
 }
 
 \references{
-López-Cortegano E. 2021. purgeR: Inbreeding and purging in pedigreed populations. *Pending revision*.
+\itemize{
+  \item{López-Cortegano E. 2021. purgeR: Inbreeding and purging in pedigreed populations. \emph{Bioinformatics}, https://doi.org/10.1093/bioinformatics/btab599.}
+}
 }
 \seealso{
 Source code is available via the GitLab repository at \url{https://gitlab.com/elcortegano/purgeR/}. Users are encouraged to report bugs, request features, and contribute code to this project.

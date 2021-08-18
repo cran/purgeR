@@ -1,3 +1,10 @@
+### purgeR 1.3
+
+- Include genedropping options for `ip_Fij()` and `ip_op()`.
+- Raw (uncorrected) estimates are always returned with `ip_op()`.
+- Fix use of `ped_sort()` with tibbles as input.
+- Documentation improvements.
+
 ### purgeR 1.2
 
 - Fix computation of total opportunity of purging (*O*).

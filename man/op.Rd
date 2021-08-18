@@ -5,7 +5,7 @@
 \alias{op}
 \title{Opportunity of purging}
 \usage{
-op(ped, pi, Fi, name_O, name_Oe, compute_O = FALSE, complex = TRUE)
+op(ped, pi, Fi, name_O, name_Oe, sufix, compute_O = FALSE)
 }
 \arguments{
 \item{ped}{A dataframe containing the pedigree. Individual (id), maternal (dam), and paternal (sire) identities are mandatory columns.}
@@ -18,9 +18,9 @@ op(ped, pi, Fi, name_O, name_Oe, compute_O = FALSE, complex = TRUE)
 
 \item{name_Oe}{A string naming the new output column for the expressed opportunity of purging (defaults to "Oe")}
 
-\item{compute_O}{Enable computation of total opportunity of purging (false by default)}
+\item{sufix}{A string naming the sufix for non-corrected O and Oe measures}
 
-\item{complex}{Enable correction for complex pedigrees.}
+\item{compute_O}{Enable computation of total opportunity of purging (false by default)}
 }
 \value{
 The input dataframe, plus two additional column named "O" and "Oe", containing total and expressed opportunity of purging measures.
