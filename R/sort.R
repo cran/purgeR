@@ -30,7 +30,7 @@
 #' @export
 ped_sort <- function(ped, id = "id", dam = "dam", sire = "sire", keep_names = FALSE) {
   check_basic(ped, id_name = id, dam_name = dam, sire_name = sire, when_rename = TRUE, when_sort = TRUE)
-  p <- as.data.frame(ped)
+  p <- base::as.data.frame(ped)
   N <- base::nrow(p)
   S <- base::rep(x = TRUE, times = N)
   G <- base::rep(x = 0, times = N)

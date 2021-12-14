@@ -59,11 +59,15 @@ exp_Fa <- function(Ne, t) {
 
 #' Expected purged inbreeding coefficient
 #'
-#' Estimates the expected purged inbreeding coefficient (Fa) as a function of the effective population size, generation number, and purging coefficient
+#' Estimates the expected purged inbreeding coefficient (g) as a function of the effective population size, generation number, and purging coefficient
 #'
 #' Computation of the purged inbreeding coefficient is calculated as in García-Dorado (2012):
 #' 
 #' g(t) = [ (1 - 1/2N) g(t-1)  + 1/2N] * [1 - 2d F(t-1)]
+#' 
+#' When convergence is reached, the asymptotic value g(a) is returned:
+#' 
+#' g(a) = (1 - 2d) / (1 + 2d (2N-1))
 #'
 #' @template Ne-arg
 #' @template t-arg
@@ -84,7 +88,21 @@ exp_g <- function(Ne, t, d) {
   check_Ne(Ne)
   check_int(t)
   check_d(d)
+
   if (t == 0) return (0.0)
-  k <- 1 / (2*Ne)
-  ((1 - k)*purgeR::exp_g(Ne, t-1, d) + k) * (1 - 2*d*purgeR::exp_F(Ne, t-1))
+
+  accuracy <- 1e-7 # 2 orders of magnitude lower than the used in unit tests
+  d2 <- 2.0*d
+  g_asymptote <- (1.0-d2) / (1.0+d2*(2.0*Ne-1.0))
+  g_asymptote <- plyr::round_any(g_asymptote, accuracy)
+  k <- 1.0/(2.0 * Ne)
+  g_pre <- 0.0 # g in previous generation, initialized at generation t = 0
+  for (i in 1:t) {
+    Fi <- purgeR::exp_F(Ne, i-1)
+    g <- ((1.0 - k)*g_pre + k) * (1.0 - d2*Fi)
+    # test convergence
+    if (plyr::round_any(g, accuracy) == g_asymptote) return (g_asymptote)
+    else g_pre <- g
+  }
+  g
 }

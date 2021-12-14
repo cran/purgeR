@@ -39,7 +39,7 @@
 #' @source The original studbook containing the complete and updated pedigree can be found at: \url{http://www.eeza.csic.es/en/programadecria.aspx}.
 #' @references
 #' \itemize{
-#'   \item{López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Pending revision*.}
+#'   \item{López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Heredity*, https://www.nature.com/articles/s41437-021-00473-2.}
 #' }
 "atlas"
 
@@ -66,7 +66,7 @@
 #' @source The original studbook containing the complete and updated pedigree can be found at: \url{http://www.eeza.csic.es/en/programadecria.aspx}.
 #' @references
 #' \itemize{
-#'   \item{López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Pending revision*.}
+#'   \item{López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes.*Heredity*, https://www.nature.com/articles/s41437-021-00473-2.}
 #' }
 "arrui"
 
@@ -92,7 +92,7 @@
 #' @source The original studbook containing the complete and updated pedigree can be found at: \url{http://www.eeza.csic.es/en/programadecria.aspx}.
 #' @references
 #' \itemize{
-#'   \item{López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Pending revision*.}
+#'   \item{López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Heredity*, https://www.nature.com/articles/s41437-021-00473-2.}
 #' }
 "dama"
 
@@ -118,6 +118,6 @@
 #' @source The original studbook containing the complete and updated pedigree can be found at: \url{http://www.eeza.csic.es/en/programadecria.aspx}.
 #' @references
 #' \itemize{
-#'   \item{López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Pending revision*.}
+#'   \item{López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Heredity*, https://www.nature.com/articles/s41437-021-00473-2.}
 #' }
 "dorcas"

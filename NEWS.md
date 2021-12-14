@@ -1,3 +1,8 @@
+### purgeR 1.4
+
+- Fix use of `exp_g()` for large numbers of generations.
+- Use improvements for `ped_sort()` and internal check functions.
+
 ### purgeR 1.3
 
 - Include genedropping options for `ip_Fij()` and `ip_op()`.

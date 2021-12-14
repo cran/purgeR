@@ -14,4 +14,6 @@ testthat::test_that("Standard inbreeding", {
   testthat::expect_equal(purgeR::exp_g(Ne = 10, t = 50, d = 0.2), 0.08010975, tolerance = 1e-5)
   testthat::expect_equal(purgeR::exp_g(Ne = 10, t = 50, d = 0.5), 0.004408481, tolerance = 1e-5)
   testthat::expect_equal(purgeR::exp_g(Ne = 50, t = 50, d = 0.5), 0.01616987, tolerance = 1e-5)
+  testthat::expect_equal(purgeR::exp_g(Ne = 10, t = 100000, d = 0.1), 0.16666667, tolerance = 1e-5)
+  testthat::expect_equal(purgeR::exp_g(Ne = 10, t = 100000, d = 0.2), 0.06976744, tolerance = 1e-5)
 })

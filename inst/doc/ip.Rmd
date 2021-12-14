@@ -298,6 +298,6 @@ It is remarkable that even small $d$ estimates result in expectations of importa
 - García-Dorado A. 2016. Predictive model and software for inbreeding-purging analysis of pedigreed populations. G3 6(11): 3593–3601.
 - Gulisija D and Crow JF. 2007. Inferring purging from pedigree data. Evolution 65(1): 1043-1051.
 - López-Cortegano E. 2021. purgeR: Inbreeding and purging in pedigreed populations. Bioinformatics, doi: https://doi.org/10.1093/bioinformatics/btab599.
-- López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Pending revision*.
+- López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. Heredity, https://www.nature.com/articles/s41437-021-00473-2.
 - Morton NE et al. 1956 An estimate of the mutational damage in man from data on consanguineous marriages. Proceedings of the National Academy of Sciences of the United States of America 42: 855-863.
 - O’Grady JJ et al.2006. Realistic levels of inbreeding depression strongly affect extinction risk in wild populations. Biological Conservation 133: 42-51.

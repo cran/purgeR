@@ -18,12 +18,16 @@ exp_g(Ne, t, d)
 The purged inbreeding coefficient
 }
 \description{
-Estimates the expected purged inbreeding coefficient (Fa) as a function of the effective population size, generation number, and purging coefficient
+Estimates the expected purged inbreeding coefficient (g) as a function of the effective population size, generation number, and purging coefficient
 }
 \details{
 Computation of the purged inbreeding coefficient is calculated as in García-Dorado (2012):
 
 g(t) = [ (1 - 1/2N) g(t-1)  + 1/2N] * [1 - 2d F(t-1)]
+
+When convergence is reached, the asymptotic value g(a) is returned:
+
+g(a) = (1 - 2d) / (1 + 2d (2N-1))
 }
 \examples{
 exp_g(Ne = 50, t = 0, d = 0.15)

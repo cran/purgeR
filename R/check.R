@@ -229,6 +229,7 @@ check_nrows <- function(df, exp, message = "Expected value of length 1") {
 #' @param compute Compute inbreeding if Fcol is NULL
 #' @return Vector of inbreeding values (if checks are successful)
 check_Fcol <- function(ped, Fcol, compute = TRUE) {
+  ped <- base::as.data.frame(ped)
   if (base::is.null(Fcol) && compute) {
     F_ <- purgeR::ip_F(ped[, c("id", "dam", "sire")])$F
     return (F_)
@@ -255,6 +256,7 @@ check_Fcol <- function(ped, Fcol, compute = TRUE) {
 #' @param force_int Generation numbers must be integers (disabled by default)
 #' @return Vector of generation numbers (if checks are successful)
 check_tcol <- function(ped, tcol, compute = TRUE, force_int = FALSE) {
+  ped <- base::as.data.frame(ped)
   if (is.null(tcol) && compute) {
     t_ <- purgeR::pop_t(ped)$t
     return (t_)

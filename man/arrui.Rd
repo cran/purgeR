@@ -33,7 +33,7 @@ and other factors (see reference below for details).
 }
 \references{
 \itemize{
-  \item{López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. *Pending revision*.}
+  \item{López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes.*Heredity*, https://www.nature.com/articles/s41437-021-00473-2.}
 }
 }
 \keyword{datasets}
