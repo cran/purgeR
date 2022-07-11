@@ -128,33 +128,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rename
-DataFrame rename(DataFrame ped, std::string id, std::string dam, std::string sire, bool keep_names);
-RcppExport SEXP _purgeR_rename(SEXP pedSEXP, SEXP idSEXP, SEXP damSEXP, SEXP sireSEXP, SEXP keep_namesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< DataFrame >::type ped(pedSEXP);
-    Rcpp::traits::input_parameter< std::string >::type id(idSEXP);
-    Rcpp::traits::input_parameter< std::string >::type dam(damSEXP);
-    Rcpp::traits::input_parameter< std::string >::type sire(sireSEXP);
-    Rcpp::traits::input_parameter< bool >::type keep_names(keep_namesSEXP);
-    rcpp_result_gen = Rcpp::wrap(rename(ped, id, dam, sire, keep_names));
-    return rcpp_result_gen;
-END_RCPP
-}
-// evaluate
-LogicalVector evaluate(DataFrame ped, std::string value_from);
-RcppExport SEXP _purgeR_evaluate(SEXP pedSEXP, SEXP value_fromSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< DataFrame >::type ped(pedSEXP);
-    Rcpp::traits::input_parameter< std::string >::type value_from(value_fromSEXP);
-    rcpp_result_gen = Rcpp::wrap(evaluate(ped, value_from));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_purgeR_reproductive_value", (DL_FUNC) &_purgeR_reproductive_value, 5},
@@ -165,8 +138,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_purgeR_op", (DL_FUNC) &_purgeR_op, 7},
     {"_purgeR_Fij_core_i_cpp", (DL_FUNC) &_purgeR_Fij_core_i_cpp, 7},
     {"_purgeR_ancestors", (DL_FUNC) &_purgeR_ancestors, 6},
-    {"_purgeR_rename", (DL_FUNC) &_purgeR_rename, 5},
-    {"_purgeR_evaluate", (DL_FUNC) &_purgeR_evaluate, 2},
     {NULL, NULL, 0}
 };
 

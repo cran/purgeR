@@ -19,7 +19,7 @@ Remove individuals that are not necessary for purging analyses involving fitness
 This will reduce the size of the pedigree, and speed up the computation of inbreeding
 parameters.
 Individuals removed include those with unknown (NA)
-values of a given parameter and that do not have any descendant in the
+values of a given parameter, as long as they do not have any descendant in the
 pedigree with known values of that parameter.
 Cleaned pedigrees will automatically have individual identities
 renamed (see \code{\link[purgeR]{ped_rename}}).

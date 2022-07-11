@@ -4,7 +4,7 @@
 #' This will reduce the size of the pedigree, and speed up the computation of inbreeding
 #' parameters.
 #' Individuals removed include those with unknown (NA)
-#' values of a given parameter and that do not have any descendant in the
+#' values of a given parameter, as long as they do not have any descendant in the
 #' pedigree with known values of that parameter.
 #' Cleaned pedigrees will automatically have individual identities
 #' renamed (see \code{\link[purgeR]{ped_rename}}).
@@ -22,7 +22,17 @@
 ped_clean <- function(ped, value_from) {
   check_basic(ped)
   check_col(base::colnames(ped), value_from)
-  idx <- .Call(`_purgeR_evaluate`, ped, value_from)
-  ped <- ped[idx, ]
+
+  rm_candidates <- base::which(base::is.na(ped[, value_from]))
+  rm_candidates <- base::sort(rm_candidates, decreasing = TRUE)
+  # loop individuals with NA value from youngest to oldest
+  for (i in rm_candidates) {
+    offspring_if_dam <-  ped[base::which(ped[, "dam"]  == i), "id"]
+    offspring_if_sire <- ped[base::which(ped[, "sire"] == i), "id"]
+    # if individual with NA value has no offspring, mark for deletion
+    if (base::length(offspring_if_dam) == 0 & base::length(offspring_if_sire) == 0) {
+      ped <- ped[-i,]
+    }
+  }
   purgeR::ped_rename(ped)
 }

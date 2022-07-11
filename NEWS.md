@@ -1,3 +1,8 @@
+### purgeR 1.5
+
+- Fix use of `ped_clean()`.
+- Performance improvements for preprocessing functions.
+
 ### purgeR 1.4
 
 - Fix use of `exp_g()` for large numbers of generations.

@@ -94,16 +94,20 @@ check_repeat_id <- function(id) {
 #' @param soft_sorting If TRUE checking is relaxed, allowing descendants to be declared before ancestors
 #' @template check-return
 check_order <- function(id, dam, sire, soft_sorting = FALSE) {
-  N <- base::length(id)
-  for (i in 1:N) {
-    if (is.na(id[i])) stop("Individual ids cannot contain missing values (NA)")
-    if (!is.na(dam[i])) {
-      if (id[i] == dam[i]) stop("Individuals cannot be born from themselves!")
+  if (base::any(base::is.na(id))) {
+    stop("Individual ids cannot contain missing values (NA)")
+  }
+  if (base::any(base::ifelse(id[!is.na(dam)] == dam[!is.na(dam)], TRUE, FALSE)) | base::any(base::ifelse(id[!is.na(sire)] == sire[!is.na(sire)], TRUE, FALSE))) {
+    stop("Individuals cannot be born from themselves!")
+  }
+  if (!soft_sorting) {
+    N <- base::length(id)
+    idx <- 1:N
+    idx_dam <- base::match(id, dam)
+    idx_sire <- base::match(id, sire)
+    if (base::any(base::ifelse(base::is.na(idx_dam), FALSE, idx_dam <= idx)) | base::any(base::ifelse(base::is.na(idx_sire), FALSE, idx_sire <= idx))) {
+      stop("Dams and sires must be declared before their offspring!")
     }
-    if (!is.na(sire[i])) {
-      if (id[i] == sire[i]) stop("Individuals cannot be born from themselves!")
-    }
-    if (!soft_sorting & ((id[i] %in% dam[1:i]) || (id[i] %in% sire[1:i]))) stop("Dams and sires must be declared before their offspring!")
   }
 }
 

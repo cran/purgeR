@@ -201,31 +201,3 @@ ancestors <- function(ped, reference, rp_idx, nboot = 10000L, seed = NULL, skip_
     .Call(`_purgeR_ancestors`, ped, reference, rp_idx, nboot, seed, skip_Ng)
 }
 
-#' Rename individuals in a pedigree from 1 to N
-#'
-#' Functions in \bold{purgeR} require individuals to be named from 1 to N.
-#' This takes a dataframe containing a pedigree, and rename individuals having
-#' names in any format to that required by other functions in \pkg{purgeR}.
-#' 
-#' @template ped-arg
-#' @param id A string naming the column with individual identities. It will be renamed to its default value 'id'.
-#' @param dam A string naming the column with maternal identities. It will be renamed to its default value 'dam'.
-#' @param sire A string naming the column with paternal identities. It will be renamed to its default value 'sire'.
-#' @param keep_names A boolean value indicating whether the original identity values should be kept on a separate column (named 'names'), or not.
-#' @return A dataframe with the pedigree's identities renamed.
-rename <- function(ped, id = "id", dam = "dam", sire = "sire", keep_names = FALSE) {
-    .Call(`_purgeR_rename`, ped, id, dam, sire, keep_names)
-}
-
-#' Individuals to be evaluated in purging analyses
-#'
-#' Returns a boolean vector indicating what individuals are suitable for purging analyses, given a measure of fitness.
-#' Individuals with NA values of fitness, and that do not have descendants with non-NA fitness values, are excluded.
-#' 
-#' @template ped-arg
-#' @template valuefrom-arg
-#' @return Boolean vector indicating what individuals will be evaluated.
-evaluate <- function(ped, value_from) {
-    .Call(`_purgeR_evaluate`, ped, value_from)
-}
-
