@@ -50,10 +50,10 @@ ip_Fij <- function(ped, mode = "founders", ancestors = NULL, Fcol = NULL, genedr
   # Checks and Initialize mode
   check_basic(ped, "id", "dam", "sire")
   check_length(mode)
-  if (!mode %in% c("all", "custom", "founders")) stop("Unknown mode value. Select one of 'founders', 'all', 'custom'")
+  if (!mode %in% c("all", "custom", "founders")) stop("Unknown mode value. Select one of 'founders', 'all', 'custom'", call. = FALSE)
   if (mode == "custom") {
-    if (base::is.null(ancestors)) stop("mode='custom' requires a vector of ancestors ('ancestors' argument)")
-    check_ancestors(ped[, "id"], ancestors)
+    if (base::is.null(ancestors)) stop("mode='custom' requires a vector of ancestors ('ancestors' argument)", call. = FALSE)
+    check_ancestors(ped[["id"]], ancestors)
   }
   check_int(ncores)
   check_int(genedrop)
@@ -65,16 +65,16 @@ ip_Fij <- function(ped, mode = "founders", ancestors = NULL, Fcol = NULL, genedr
   # Set ancestors
   N <- base::nrow(ped)
   if (mode == "founders") {
-    ancestors_ids <- ped[base::which(ped$dam == 0 & ped$sire == 0),]$id
-    if (!base::is.null(ancestors)) stop("Vector of ancestors should only be given with argument mode='custom'")
+    ancestors_ids <- ped[ped[["dam"]] == 0 & ped[["sire"]] == 0, ][["id"]]
+    if (!base::is.null(ancestors)) stop("Vector of ancestors should only be given with argument mode='custom'", call. = FALSE)
   } else if (mode == "all") {
-    ancestors_ids <- ped$id;
-    if (!base::is.null(ancestors)) stop("Vector of ancestors should only be given with argument mode='custom'")
+    ancestors_ids <- ped[["id"]];
+    if (!base::is.null(ancestors)) stop("Vector of ancestors should only be given with argument mode='custom'", call. = FALSE)
   } else if (mode == "custom") {
     if (!base::is.null(ancestors)) {
       ancestors_ids <- ancestors
-    } else stop("mode='custom' requires a vector of ancestors ('ancestors' argument)")
-  } else stop("Unknown mode value. Select one of 'founders', 'all', 'custom'")
+    } else stop("mode='custom' requires a vector of ancestors ('ancestors' argument)", call. = FALSE)
+  } else stop("Unknown mode value. Select one of 'founders', 'all', 'custom'", call. = FALSE)
 
   # Index and map ancestors
   ancestors_idx <- idx_ancestors(ancestors_ids, N)
@@ -114,17 +114,16 @@ map_ancestors <- function (ped, idx) {
   M <- base::sum(!is.na(idx))
   map <- base::matrix(data = FALSE, nrow = N, ncol = N)
   for (i in 1:N) {
-    if (ped$dam[i] > 0) {
-      map[i, ped$dam[i]] <- TRUE
-      map[i, ][1:ped$dam[i]] <- base::ifelse(map[ped$dam[i], ][1:ped$dam[i]], TRUE, map[i, ][1:ped$dam[i]])
+    if (ped[["dam"]][i] > 0) {
+      map[i, ped[["dam"]][i]] <- TRUE
+      map[i, ][1:ped[["dam"]][i]] <- base::ifelse(map[ped[["dam"]][i], ][1:ped[["dam"]][i]], TRUE, map[i, ][1:ped[["dam"]][i]])
     }
-    if (ped$sire[i] > 0) {
-      map[i, ped$sire[i]] <- TRUE
-      map[i, ][1:ped$sire[i]] <- base::ifelse(map[ped$sire[i], ][1:ped$sire[i]], TRUE, map[i, ][1:ped$sire[i]])
+    if (ped[["sire"]][i] > 0) {
+      map[i, ped[["sire"]][i]] <- TRUE
+      map[i, ][1:ped[["sire"]][i]] <- base::ifelse(map[ped[["sire"]][i], ][1:ped[["sire"]][i]], TRUE, map[i, ][1:ped[["sire"]][i]])
     }
   }
-  idx <- base::which(!base::is.na(idx))
-  base::as.matrix(map[, idx])
+  base::as.matrix(map[, !base::is.na(idx)])
 }
 
 #' Partial inbreeding coefficient (core function)
@@ -165,13 +164,13 @@ Fij_core <- function(ped, ancestors, ancestors_idx, Fi, mapa, ncores = 1, genedr
   max_ncores <- parallel::detectCores() - 1
   pb$message("Computing partial kinship matrix. This may take a while.")
   pb$tick(0)
-  if (ncores < 1) stop ("The minimum number of cores is 1")
-  else if (ncores > max_ncores) stop(paste("It seems that your system has access to ", max_ncores+1, " cores. Use is limited to ", max_ncores , sep = ""))
+  if (ncores < 1) stop ("The minimum number of cores is 1", call. = FALSE)
+  else if (ncores > max_ncores) stop(paste("It seems that your system has access to ", max_ncores+1, " cores. Use is limited to ", max_ncores , sep = ""), call. = FALSE)
   else if (ncores == 1) {
     for (i in 1:M) {
       pb$tick(0)
       map_i <- mapa[, i]
-      pi[, i] <- Fij_core_i_cpp(ped$dam, ped$sire, ancestors[i] - 1, map_i, Fi, genedrop, seed)
+      pi[, i] <- Fij_core_i_cpp(ped[["dam"]], ped[["sire"]], ancestors[i] - 1, map_i, Fi, genedrop, seed)
       pb$tick()
     }
   } else {
@@ -190,7 +189,7 @@ Fij_core <- function(ped, ancestors, ancestors_idx, Fi, mapa, ncores = 1, genedr
                             .options.snow = opts
                             ) %dopar% {
       map_i <- mapa[, i]
-      pi[, i] <- Fij_core_i_cpp(ped$dam, ped$sire, ancestors[i] - 1, map_i, Fi, genedrop, seed)
+      pi[, i] <- Fij_core_i_cpp(ped[["dam"]], ped[["sire"]], ancestors[i] - 1, map_i, Fi, genedrop, seed)
     }
     parallel::stopCluster(cl)
   }

@@ -5,7 +5,7 @@
 \alias{check_target}
 \title{Check columns with reference individuals}
 \usage{
-check_reference(ped, reference, variable)
+check_reference(ped, reference)
 
 check_target(ped, reference, target, variable)
 }
@@ -14,9 +14,9 @@ check_target(ped, reference, target, variable)
 
 \item{reference}{A string naming a column indicating whether individuals belong to the reference population or not. Column must be boolean or coercible to boolean type.}
 
-\item{variable}{To be used in printed messages}
-
 \item{target}{Target column}
+
+\item{variable}{To be used in printed messages}
 }
 \value{
 Vector of reference numbers (if checks are successful)

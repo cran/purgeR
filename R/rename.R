@@ -26,7 +26,6 @@ ped_rename <- function(ped, id = "id", dam = "dam", sire = "sire", keep_names = 
 
   ped_renamed <- ped
   ped_renamed <- dplyr::rename(ped_renamed, "id" = id, "dam" = dam, "sire" = sire)
-  ped_renamed <- as.data.frame(ped_renamed)
   names <- base::as.character(ped_renamed[["id"]])
   ped_renamed["id"] <- 1:base::nrow(ped)
   ped_renamed["dam"] <- base::as.character(ped_renamed[["dam"]])
@@ -38,7 +37,6 @@ ped_rename <- function(ped, id = "id", dam = "dam", sire = "sire", keep_names = 
   ped_renamed["dam"] <- base::as.integer(ped_renamed[["dam"]])
   ped_renamed["sire"] <- base::as.integer(ped_renamed[["sire"]])
 
-  ped_renamed <- base::as.data.frame(ped_renamed)
   if (keep_names) {
     ped_renamed["names"] <- names
   }

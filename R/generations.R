@@ -21,8 +21,8 @@ pop_t <-function(ped, name_to = "t") {
   N <- base::nrow(ped)
   t <- base::numeric(N)
   for (i in 1:N) {
-    if (ped$dam[i]) t[i] <- t[i] + 0.5 + 0.5 * t[ped$dam[i]]
-    if (ped$sire[i]) t[i] <- t[i] + 0.5 + 0.5 * t[ped$sire[i]]
+    if (ped[["dam"]][i]) t[i] <- t[i] + 0.5 + 0.5 * t[ped[["dam"]][i]]
+    if (ped[["sire"]][i]) t[i] <- t[i] + 0.5 + 0.5 * t[ped[["sire"]][i]]
   }
   ped[name_to] <- t;
   ped

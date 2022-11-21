@@ -1,3 +1,8 @@
+### purgeR 1.6
+
+- Enhanced portability with tibbles.
+- Minor bug fixes and improvements.
+
 ### purgeR 1.5
 
 - Fix use of `ped_clean()`.

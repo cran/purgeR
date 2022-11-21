@@ -103,6 +103,21 @@ aic_best <- aic_values %>% min()
 models[[which(aic_values == aic_best)]] %>% summary
 d_values[which(aic_values == aic_best)]
 
+## ----significance_purging_coefficient-----------------------------------------
+# AIC for the model with no purging
+AIC_d0 <-models[[1]] %>% AIC()
+
+# AIC for the best model (d=0.22)
+AIC_best <- models[[which(aic_values == aic_best)]] %>% AIC()
+
+# Chi2 statistic; note that we assume here that the two models only differ in one parameter
+# as the model forcing d=0 does not estimate d, but the other does, and has one degree of freedom less
+# Chi2 <- (AIC(simple model) - 2K(simple model)) - (AIC(complete model) - 2K(complete model))
+Chi2 <- AIC_d0 - AIC_best + 1.0
+
+# Get a p-value from the Chi distribution, using the critical value and one degre of freedom
+pchisq(q=Chi2, df=1, lower.tail=FALSE)
+
 ## ----estimate_purging_coefficient_abc, eval=FALSE-----------------------------
 #  # Initialize observed data
 #  data(dama)

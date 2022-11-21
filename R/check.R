@@ -12,9 +12,9 @@
 check_basic <- function(ped, id_name = "id", dam_name = "dam", sire_name = "sire", when_rename = FALSE, when_sort = FALSE) {
   check_df(ped)
   check_names(ped, id_name = id_name, dam_name = dam_name, sire_name = sire_name); # if id, dam and sire columns exist
-  id_vector <- base::as.vector(base::unlist(ped[, id_name]))
-  dam_vector <- base::as.vector(base::unlist(ped[, dam_name]))
-  sire_vector <- base::as.vector(base::unlist(ped[, sire_name]))
+  id_vector <- base::as.vector(base::unlist(ped[[id_name]]))
+  dam_vector <- base::as.vector(base::unlist(ped[[dam_name]]))
+  sire_vector <- base::as.vector(base::unlist(ped[[sire_name]]))
   check_zero_id(id_vector); # ids named 0
   check_repeat_id(id_vector); # repeated ids
   check_order(id = id_vector, dam = dam_vector, sire = sire_vector, when_sort); # parents declared before descendants
@@ -41,9 +41,9 @@ check_names <- function(ped, id_name = "id", dam_name = "dam", sire_name = "sire
   check_length(dam_name)
   check_length(sire_name)
   names <- base::colnames(ped)
-  if (!id_name %in% names) stop("Mandatory column 'id' not found")
-  if (!dam_name %in% names) stop("Mandatory column 'dam' not found")
-  if (!sire_name %in% names) stop("Mandatory column 'sire' not found")
+  if (!id_name %in% names) stop("Mandatory column 'id' not found", call. = FALSE)
+  if (!dam_name %in% names) stop("Mandatory column 'dam' not found", call. = FALSE)
+  if (!sire_name %in% names) stop("Mandatory column 'sire' not found", call. = FALSE)
 }
 
 #' Check that mandatory column names are of type int
@@ -56,9 +56,9 @@ check_names <- function(ped, id_name = "id", dam_name = "dam", sire_name = "sire
 #' @param sire Vector of sire ids.
 #' @template check-return
 check_types <- function(id, dam, sire) {
-  if (base::class(id) != "integer") stop("Mandatory 'id', 'dam' and 'sire' columns need to be of type integer")
-  else if (base::class(dam) != "integer") stop("Mandatory 'id', 'dam' and 'sire' columns need to be of type integer")
-  else if (base::class(sire) != "integer") stop("Mandatory 'id', 'dam' and 'sire' columns need to be of type integer")
+  if (base::class(id) != "integer") stop("Mandatory 'id', 'dam' and 'sire' columns need to be of type integer", call. = FALSE)
+  else if (base::class(dam) != "integer") stop("Mandatory 'id', 'dam' and 'sire' columns need to be of type integer", call. = FALSE)
+  else if (base::class(sire) != "integer") stop("Mandatory 'id', 'dam' and 'sire' columns need to be of type integer", call. = FALSE)
 }
 
 #' Check individuals named zero
@@ -69,7 +69,7 @@ check_types <- function(id, dam, sire) {
 #' @param id Vector of individual ids.
 #' @template check-return
 check_zero_id <- function(id) {
-  if (base::any(id == 0)) stop("Individual IDs cannot be set to 0 (it is reserved to unknown parents)")
+  if (base::any(id == 0)) stop("Individual IDs cannot be set to 0 (it is reserved to unknown parents)", call. = FALSE)
 }
 
 #' Check repeated ids
@@ -80,7 +80,7 @@ check_zero_id <- function(id) {
 #' @param id Vector of individual ids.
 #' @template check-return
 check_repeat_id <- function(id) {
-  if(base::anyDuplicated(id)) stop("There are repeated individual IDs")
+  if(base::anyDuplicated(id)) stop("There are repeated individual IDs", call. = FALSE)
 }
 
 #' Check individual order
@@ -95,10 +95,10 @@ check_repeat_id <- function(id) {
 #' @template check-return
 check_order <- function(id, dam, sire, soft_sorting = FALSE) {
   if (base::any(base::is.na(id))) {
-    stop("Individual ids cannot contain missing values (NA)")
+    stop("Individual ids cannot contain missing values (NA)", call. = FALSE)
   }
   if (base::any(base::ifelse(id[!is.na(dam)] == dam[!is.na(dam)], TRUE, FALSE)) | base::any(base::ifelse(id[!is.na(sire)] == sire[!is.na(sire)], TRUE, FALSE))) {
-    stop("Individuals cannot be born from themselves!")
+    stop("Individuals cannot be born from themselves!", call. = FALSE)
   }
   if (!soft_sorting) {
     N <- base::length(id)
@@ -106,7 +106,7 @@ check_order <- function(id, dam, sire, soft_sorting = FALSE) {
     idx_dam <- base::match(id, dam)
     idx_sire <- base::match(id, sire)
     if (base::any(base::ifelse(base::is.na(idx_dam), FALSE, idx_dam <= idx)) | base::any(base::ifelse(base::is.na(idx_sire), FALSE, idx_sire <= idx))) {
-      stop("Dams and sires must be declared before their offspring!")
+      stop("Dams and sires must be declared before their offspring!", call. = FALSE)
     }
   }
 }
@@ -120,7 +120,7 @@ check_order <- function(id, dam, sire, soft_sorting = FALSE) {
 #' @template check-return
 check_index <- function(id) {
   N <- base::length(id)
-  if(!base::identical(id, 1:N)) stop("Individuals must be named from 1 to N")
+  if(!base::identical(id, 1:N)) stop("Individuals must be named from 1 to N", call. = FALSE)
 }
 
 #' Check pedigree class
@@ -131,7 +131,7 @@ check_index <- function(id) {
 #' @param obj Object to test
 #' @template check-return
 check_df <- function(obj) {
-  if (!base::is.data.frame(obj)) stop("Pedigree must be of class 'data.frame'")
+  if (!base::is.data.frame(obj)) stop("Pedigree must be of class 'data.frame'", call. = FALSE)
 }
 
 #' Check that optional column is included
@@ -144,7 +144,7 @@ check_df <- function(obj) {
 #' @template check-return
 check_col <- function(names, name) {
   check_length(name, "Expected one column name, but more detected")
-  if (!name %in% names) stop(paste("Column not found:", name, sep = " "))
+  if (!name %in% names) stop(paste("Column not found:", name, sep = " "), call. = FALSE)
 }
 
 #' Check if optional column is included
@@ -156,7 +156,7 @@ check_col <- function(names, name) {
 #' @template check-return
 check_not_col <- function(names, name) {
   check_length(name, "Expected one column name, but more detected")
-  if (name %in% names) warning(paste("Column already exists (it will be overwritten)", name, sep = " "))
+  if (name %in% names) warning(paste("Column already exists (it will be overwritten)", name, sep = " "), call. = FALSE)
 }
 
 #' Check if a variable is boolean or not
@@ -168,7 +168,7 @@ check_not_col <- function(names, name) {
 #' @template check-return
 check_bool <- function(variable) {
   check_length(variable, "Expected boolean of length 1")
-  if (!is.logical(variable)) stop("Expected boolean (TRUE/FALSE) argument.")
+  if (!is.logical(variable)) stop("Expected boolean (TRUE/FALSE) argument.", call. = FALSE)
 }
 
 #' Check if a variable is a positive integer or not
@@ -180,7 +180,7 @@ check_bool <- function(variable) {
 #' @template check-return
 check_int <- function(variable) {
   check_length(variable, "Expected single integer value")
-  if ((!class(variable) %in% c("integer", "numeric")) || (variable < 0)) stop("Expected a positive integer argument value.")
+  if ((!class(variable) %in% c("integer", "numeric")) | (variable < 0)) stop("Expected a positive integer argument value.", call. = FALSE)
 }
 
 #' Check if a vector contains NA values
@@ -191,8 +191,8 @@ check_int <- function(variable) {
 #' @param variable Variable to test
 #' @template check-return
 check_na <- function(variable) {
-  if (base::all(base::is.na(variable))) stop("Cannot input a vector of NAs")
-  if (base::any(base::is.na(variable))) warning("NAs can cause unexpected behavior. Remove them")
+  if (base::all(base::is.na(variable))) stop("Cannot input a vector of NAs", call. = FALSE)
+  if (base::any(base::is.na(variable))) warning("NAs can cause unexpected behavior. Remove them", call. = FALSE)
 }
 
 #' Check if a variable has length >1
@@ -204,7 +204,7 @@ check_na <- function(variable) {
 #' @param message Error message to display
 #' @template check-return
 check_length <- function(variable, message = "Expected value of length 1") {
-  if (base::length(variable) > 1) stop(message)
+  if (base::length(variable) > 1) stop(message, call. = FALSE)
 }
 
 #' Check observed and expected number of rows
@@ -219,7 +219,7 @@ check_length <- function(variable, message = "Expected value of length 1") {
 check_nrows <- function(df, exp, message = "Expected value of length 1") {
   check_df(df)
   check_int(exp)
-  if (base::nrow(df) != exp) stop("Unexpected number of rows returned. Please contact the developer.")
+  if (base::nrow(df) != exp) stop("Unexpected number of rows returned. Please contact the developer.", call. = FALSE)
 }
 
 #' Check columns with inbreeding values
@@ -233,16 +233,15 @@ check_nrows <- function(df, exp, message = "Expected value of length 1") {
 #' @param compute Compute inbreeding if Fcol is NULL
 #' @return Vector of inbreeding values (if checks are successful)
 check_Fcol <- function(ped, Fcol, compute = TRUE) {
-  ped <- base::as.data.frame(ped)
-  if (base::is.null(Fcol) && compute) {
-    F_ <- purgeR::ip_F(ped[, c("id", "dam", "sire")])$F
+  if (base::is.null(Fcol) & compute) {
+    F_ <- purgeR::ip_F(ped[, c("id", "dam", "sire")])[["Fi"]]
     return (F_)
-  } else if (base::is.null(Fcol)) stop("check_Fcol is designed to return a vector of F values.")
+  } else if (base::is.null(Fcol)) stop("check_Fcol is designed to return a vector of F values.", call. = FALSE)
 
   check_col(base::colnames(ped), Fcol)
-  if (!class(ped[, Fcol]) %in% c("numeric")) stop ("Inbreeding needs to be of numeric type.")
-  else F_ <- ped[, Fcol]
-  if (max(F_, na.rm = TRUE) > 1.0 | min(F_, na.rm = TRUE)  < 0.0)  stop ("Inbreeding needs to be in the range [0,1].")
+  if (!class(ped[[Fcol]]) %in% c("numeric")) stop ("Inbreeding needs to be of numeric type.", call. = FALSE)
+  else F_ <- ped[[Fcol]]
+  if (max(F_, na.rm = TRUE) > 1.0 | min(F_, na.rm = TRUE)  < 0.0)  stop ("Inbreeding needs to be in the range [0,1].", call. = FALSE)
   Fcol <- F_
   check_na(Fcol)
   F_
@@ -260,16 +259,15 @@ check_Fcol <- function(ped, Fcol, compute = TRUE) {
 #' @param force_int Generation numbers must be integers (disabled by default)
 #' @return Vector of generation numbers (if checks are successful)
 check_tcol <- function(ped, tcol, compute = TRUE, force_int = FALSE) {
-  ped <- base::as.data.frame(ped)
-  if (is.null(tcol) && compute) {
-    t_ <- purgeR::pop_t(ped)$t
+  if (is.null(tcol) & compute) {
+    t_ <- purgeR::pop_t(ped)[["t"]]
     return (t_)
   }
   check_col(base::colnames(ped), tcol)
-  if (!force_int && !class(ped[, tcol]) %in% c("integer", "numeric")) stop ("Generations need to be of numeric type.")
-  else if (force_int && !class(ped[, tcol]) %in% c("integer")) stop ("Generations need to be of integer type.")
-  else t_ <- ped[, tcol]
-  if (min(t_, na.rm = TRUE)  < 0)  stop ("Generations cannot take negative values.")
+  if (!force_int & !class(ped[[tcol]]) %in% c("integer", "numeric")) stop ("Generations need to be of numeric type.", call. = FALSE)
+  else if (force_int & !class(ped[[tcol]]) %in% c("integer")) stop ("Generations need to be of integer type.", call. = FALSE)
+  else t_ <- ped[[tcol]]
+  if (min(t_, na.rm = TRUE)  < 0)  stop ("Generations cannot take negative values.", call. = FALSE)
   tcol <- t_
   check_na(tcol)
   t_
@@ -284,13 +282,12 @@ check_tcol <- function(ped, tcol, compute = TRUE, force_int = FALSE) {
 #' @name check_reference
 #' @template ped-arg
 #' @template reference-arg
-#' @param variable To be used in printed messages
 #' @return Vector of reference numbers (if checks are successful)
-check_reference <- function(ped, reference, variable) {
+check_reference <- function(ped, reference) {
   check_length(reference, "Expected one column name, but more detected")
-  reference <- base::as.logical(ped[, reference])
-  if (base::all(base::is.na(reference))) stop(paste("Failed to coerce '", variable, "' values: All NAs.", sep = ""))
-  else if (base::sum(reference, na.rm = TRUE) == 0) stop(paste("At least one '", variable, "' value should be TRUE.", sep = ""))
+  reference <- base::as.logical(ped[[reference]])
+  if (base::all(base::is.na(reference))) stop(paste("Failed to coerce 'reference' values: All NAs.", sep = ""), call. = FALSE)
+  else if (base::sum(reference, na.rm = TRUE) == 0) stop(paste("At least one 'reference' value should be TRUE.", sep = ""), call. = FALSE)
   check_na(reference)
   reference
 }
@@ -309,13 +306,13 @@ check_reference <- function(ped, reference, variable) {
 #' @return Vector of target numbers (if checks are successful)
 check_target <- function(ped, reference, target, variable) {
   if (base::is.null(target)) return (target)
-  id_ref <- ped$id[ped[, reference]]
-  id_tgt <- ped$id[ped[, target]]
-  target <- base::as.logical(ped[, target])
-  if (base::all(base::is.na(target))) stop(paste("Failed to coerce '", variable, "' values: All NAs.", sep = ""))
-  else if (base::sum(target, na.rm = TRUE) == 0) stop(paste("At least one '", variable, "' value should be TRUE.", sep = ""))
-  else if (base::any(id_ref %in% id_tgt)) stop("Cannot use reference individuals as target at the same time.")
-  if (base::any(id_tgt < base::max(id_ref, na.rm = TRUE))) base::warning("Target individuals should always have 'id' lower than reference individuals.")
+  id_ref <- ped[["id"]][ped[[reference]]]
+  id_tgt <- ped[["id"]][ped[[target]]]
+  target <- base::as.logical(ped[[target]])
+  if (base::all(base::is.na(target))) stop(paste("Failed to coerce '", variable, "' values: All NAs.", sep = ""), call. = FALSE)
+  else if (base::sum(target, na.rm = TRUE) == 0) stop(paste("At least one '", variable, "' value should be TRUE.", sep = ""), call. = FALSE)
+  else if (base::any(id_ref %in% id_tgt)) stop("Cannot use reference individuals as target at the same time.", call. = FALSE)
+  if (base::any(id_tgt < base::max(id_ref, na.rm = TRUE))) base::warning("Target individuals should always have 'id' lower than reference individuals.", call. = FALSE)
   check_na(target)
   target
 }
@@ -329,7 +326,7 @@ check_target <- function(ped, reference, target, variable) {
 #' @template check-return
 check_d <- function(d) {
   check_length(d, "Expected single numeric value between 0 and 0.5")
-  if ((!class(d) %in% c("integer","numeric")) || (d < 0.0) || (d > 0.5)) stop("Expected a numeric value in the range [0, 0.5]")
+  if ((!class(d) %in% c("integer","numeric")) | (d < 0.0) | (d > 0.5)) stop("Expected a numeric value in the range [0, 0.5]", call. = FALSE)
 }
 
 #' Check Ne
@@ -341,7 +338,7 @@ check_d <- function(d) {
 #' @template check-return
 check_Ne <- function(Ne) {
   check_length(Ne)
-  if ((!class(Ne) %in% c("integer","numeric")) || (Ne < 1.0)) stop("Expected a numeric value higher or equal than 1")
+  if ((!class(Ne) %in% c("integer","numeric")) | (Ne < 1.0)) stop("Expected a numeric value higher or equal than 1", call. = FALSE)
 }
 
 #' Check ancestor individuals
@@ -356,13 +353,13 @@ check_Ne <- function(Ne) {
 #' @template check-return
 check_ancestors <- function(id, ancestors) {
   if (base::class(ancestors) != "integer") {
-    if (base::class(ancestors) == "numeric") stop("'ancestors' column needs to be of type integer (not 'numeric', use as.integer())")
-    else stop("'ancestors' column needs to be of type integer")
+    if (base::class(ancestors) == "numeric") stop("'ancestors' column needs to be of type integer (not 'numeric', use as.integer())", call. = FALSE)
+    else stop("'ancestors' column needs to be of type integer", call. = FALSE)
   }
   check_zero_id(ancestors)
   check_repeat_id(ancestors)
-  if (!base::all(ancestors %in% id)) stop("All ancestors must have a valid id")
+  if (!base::all(ancestors %in% id)) stop("All ancestors must have a valid id", call. = FALSE)
   sorted_ancestors <- base::sort(ancestors)
-  if(!base::identical(ancestors, sorted_ancestors)) stop("Ancestor ids must be sorted")
+  if(!base::identical(ancestors, sorted_ancestors)) stop("Ancestor ids must be sorted", call. = FALSE)
   check_na(ancestors)
 }

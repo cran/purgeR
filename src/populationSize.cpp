@@ -4,7 +4,7 @@
 #include "error.h"
 using namespace Rcpp;
 
-void search_ancestors(Rcpp::DataFrame, int, Rcpp::LogicalVector, Rcpp::LogicalVector);
+void search_ancestors(Rcpp::IntegerVector, Rcpp::IntegerVector, int, Rcpp::LogicalVector, Rcpp::LogicalVector);
 int sample_allele(int, int);
 
 //' Individuals to be evaluated in purging analyses
@@ -52,7 +52,7 @@ DataFrame ancestors(Rcpp::DataFrame ped,
   Rcpp::LogicalVector ancestors (N, false);
   for (const auto& idx: rp_idx) {
     ++Nr;
-    search_ancestors(ped, idx, founders, ancestors);
+    search_ancestors(ped[dam_col], ped[sire_col], idx, founders, ancestors);
     Rcpp::checkUserInterrupt(); // check cancellation from user
   }
   Nf = sum(founders);
@@ -253,18 +253,18 @@ DataFrame ancestors(Rcpp::DataFrame ped,
 //' Recursive function that gathers all founders and ancestors for a given individual
 //' 
 //' @name search_ancestors
-//' @template ped-arg
+//' @template damv-arg
+//' @template sirev-arg
 //' @param i Reference individual (its index, not id).
 //' @param fnd Vector of founders (to be returned as reference).
 //' @param anc Vector of ancestors (to be returned as reference).
 //' @return The sampled allele.
-void search_ancestors(Rcpp::DataFrame ped,
+void search_ancestors(Rcpp::IntegerVector dam,
+                      Rcpp::IntegerVector sire,
                       int i,
                       Rcpp::LogicalVector fnd,
                       Rcpp::LogicalVector anc) {
   
-  Rcpp::IntegerVector dam = ped[dam_col];
-  Rcpp::IntegerVector sire = ped[sire_col];
   int idam = dam[i];
   int isire = sire[i];
   if (!idam && !isire) {
@@ -274,11 +274,11 @@ void search_ancestors(Rcpp::DataFrame ped,
   } else {
     if (idam && !anc[idam-1]) {
       anc[idam-1] = true;
-      search_ancestors(ped, idam-1, fnd, anc);
+      search_ancestors(dam, sire, idam-1, fnd, anc);
     }
     if (isire && !anc[isire-1]) {
       anc[isire-1] = true;
-      search_ancestors(ped, isire-1, fnd, anc);
+      search_ancestors(dam, sire, isire-1, fnd, anc);
     }
   }
 }

@@ -26,13 +26,13 @@ ped_maternal <- function(ped, value_from, name_to, use_dam = TRUE, set_na = NULL
   check_length(set_na)
 
   # Return maternal effect
-  idx <- ifelse(ped$dam == 0, NA, ped$dam)
-  x <- ifelse(is.na(idx), NA, ped[, value_from][idx])
+  idx <- ifelse(ped[["dam"]] == 0, NA, ped[["dam"]])
+  x <- ifelse(is.na(idx), NA, ped[[value_from]][idx])
   if (!use_dam) {
-    idx <- ifelse(ped$sire == 0, NA, ped$sire)
-    x <- ifelse(is.na(idx), NA, ped[, value_from][idx])
+    idx <- ifelse(ped[["sire"]] == 0, NA, ped[["sire"]])
+    x <- ifelse(is.na(idx), NA, ped[[value_from]][idx])
   }
   if (!is.null(set_na)) x <- ifelse(is.na(x), set_na, x)
-  ped[, name_to] <- x
+  ped[name_to] <- x
   ped
 }

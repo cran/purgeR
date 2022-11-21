@@ -168,7 +168,8 @@ Fij_core_i_cpp <- function(dam, sire, anc_idx, mapa, Fi, genedrop = 0L, seed = N
 #' Recursive function that gathers all founders and ancestors for a given individual
 #' 
 #' @name search_ancestors
-#' @template ped-arg
+#' @template damv-arg
+#' @template sirev-arg
 #' @param i Reference individual (its index, not id).
 #' @param fnd Vector of founders (to be returned as reference).
 #' @param anc Vector of ancestors (to be returned as reference).

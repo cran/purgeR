@@ -66,7 +66,7 @@ ip_op <- function(ped, name_Oe = "Oe", compute_O = FALSE, name_O = "O", Fcol = N
   check_not_col(base::colnames(ped), name_O)
   check_not_col(base::colnames(ped), name_Oe)
   check_bool(compute_O)
-  if (!base::is.null(complex)) base::warning("Argument 'complex' was deprecated in v1.3. It will be ignored.")
+  if (!base::is.null(complex)) base::warning("Argument 'complex' was deprecated in v1.3. It will be ignored.", call. = FALSE)
 
   pkm <- ip_Fij(ped, mode = "all", Fcol = Fcol, ncores = ncores, genedrop = genedrop, seed = seed)
   .Call(`_purgeR_op`, ped, pkm, Fcol = F_, name_O, name_Oe, "_raw", compute_O)

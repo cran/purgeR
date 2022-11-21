@@ -19,12 +19,12 @@ w_offspring <- function(ped, name_to, dam_offspring = TRUE, sire_offspring = TRU
   check_not_col(base::colnames(ped), name_to)
   check_bool(dam_offspring)
   check_bool(sire_offspring)
-  if (!dam_offspring & !sire_offspring) stop("At least one of dam or sire productivity must be set TRUE.")
+  if (!dam_offspring & !sire_offspring) stop("At least one of dam or sire productivity must be set TRUE.", call. = FALSE)
 
   # Return productivity
-  id_names <- base::as.character(ped$id)
-  dam_freq <- base::table(ped$dam)
-  sire_freq <- base::table(ped$sire)
+  id_names <- base::as.character(ped[["id"]])
+  dam_freq <- base::table(ped[["dam"]])
+  sire_freq <- base::table(ped[["sire"]])
   x <- ifelse((id_names %in% base::names(dam_freq)) & dam_offspring,
     dam_freq[id_names],
     ifelse((id_names %in% base::names(sire_freq)) & sire_offspring,
@@ -32,7 +32,7 @@ w_offspring <- function(ped, name_to, dam_offspring = TRUE, sire_offspring = TRU
       0.0
     )
   )
-  ped[, name_to] <- x
+  ped[name_to] <- x
   ped
 }
 
@@ -58,13 +58,13 @@ w_grandoffspring <- function(ped, name_to) {
   N <- base::nrow(ped)
   productivity <- base::numeric(N)
   for (i in 1:N) {
-    offspring <- ped[base::which(ped$dam == i | ped$sire == i),]$id
+    offspring <- ped[ped[["dam"]] == i | ped[["sire"]] == i, ][["id"]]
     if (base::length(offspring) > 0) {
-      grandchildren <- base::nrow(ped[base::which(ped$dam %in% offspring | ped$sire %in% offspring),])
+      grandchildren <- base::nrow(ped[ped[["dam"]] %in% offspring | ped[["sire"]] %in% offspring, ])
       productivity[i] <- grandchildren
     }
   }
-  ped[, name_to] <- productivity
+  ped[name_to] <- productivity
   ped
 }
 
@@ -122,7 +122,7 @@ w_reproductive_value <- function(ped, reference, name_to, target = NULL, enable_
   check_basic(ped, "id", "dam", "sire")
   check_col(base::colnames(ped), reference)
   check_not_col(base::colnames(ped), name_to)
-  ref <- check_reference(ped, reference, "reference")
+  ref <- check_reference(ped, reference)
   tgt <- check_target(ped, reference, target, "target")
   check_bool(enable_correction)
 
@@ -131,7 +131,7 @@ w_reproductive_value <- function(ped, reference, name_to, target = NULL, enable_
   if (!generation_wise) .Call(`_purgeR_reproductive_value`, ped, ref, name_to, tgt, enable_correction)
   # Generation-wise mode
   else {
-    if (!base::is.null(target)) stop ("Cannot define 'target' individuals under generation wise mode.")
+    if (!base::is.null(target)) stop ("Cannot define 'target' individuals under generation wise mode.", call. = FALSE)
     check_tcol(ped, tcol = reference, compute = FALSE, force_int = TRUE)
     tmp_ped <- ped
     tmp_reference <- base::paste("tmp_", reference, sep = "")
@@ -141,7 +141,7 @@ w_reproductive_value <- function(ped, reference, name_to, target = NULL, enable_
     generations <- generations[1:(base::length(generations)-1)]
     for (i in generations) {
       tmp_ped[, tmp_reference] <- ifelse(tmp_ped[, reference] == i, TRUE, FALSE)
-      tmp_ref <- check_reference(tmp_ped, tmp_reference, "tmp_reference")
+      tmp_ref <- check_reference(tmp_ped, tmp_reference)
       tmp_rv <- .Call(`_purgeR_reproductive_value`, tmp_ped, tmp_ref, tmp_name_to, target, enable_correction)[, tmp_name_to]
       rv <- ifelse(tmp_rv != 0.0, tmp_rv, rv)
     }

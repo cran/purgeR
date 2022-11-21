@@ -30,11 +30,11 @@
 #' @export
 ped_sort <- function(ped, id = "id", dam = "dam", sire = "sire", keep_names = FALSE) {
   check_basic(ped, id_name = id, dam_name = dam, sire_name = sire, when_rename = TRUE, when_sort = TRUE)
-  p <- base::as.data.frame(ped)
+  p <- ped
   N <- base::nrow(p)
   S <- base::rep(x = TRUE, times = N)
   G <- base::rep(x = 0, times = N)
-  t <- base::data.frame()
+  t <- ped[NULL]
   t_G <- base::integer()
   ped <- sort_step(p, id, dam, sire, t, S, G, t_G)
   check_nrows(ped, N)
@@ -62,8 +62,8 @@ ped_sort <- function(ped, id = "id", dam = "dam", sire = "sire", keep_names = FA
 #' }
 #' @return Filled template for the sorted pedigree. Once recursion ends, it returns the sorted pedigree
 sort_step <- function(p, id, dam, sire, t, S, G, t_G) {
-  in_dam <- base::ifelse(p[, id] %in% p[, dam], TRUE, FALSE)
-  in_sire <- base::ifelse(p[, id] %in% p[, sire], TRUE, FALSE)
+  in_dam <- base::ifelse(p[[id]] %in% p[[dam]], TRUE, FALSE)
+  in_sire <- base::ifelse(p[[id]] %in% p[[sire]], TRUE, FALSE)
   S <- base::ifelse(!in_dam & !in_sire, FALSE, S)
   G <- base::ifelse(!in_dam & !in_sire, G, G+1)
   pns <- p[!S, ]

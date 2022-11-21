@@ -4,7 +4,9 @@
 \alias{search_ancestors}
 \title{Search and individuals' ancestors}
 \arguments{
-\item{ped}{A dataframe containing the pedigree. Individual (id), maternal (dam), and paternal (sire) identities are mandatory columns.}
+\item{dam}{Vector of dams.}
+
+\item{sire}{Vector of sires.}
 
 \item{i}{Reference individual (its index, not id).}
 

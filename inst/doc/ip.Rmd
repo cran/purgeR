@@ -165,6 +165,26 @@ d_values[which(aic_values == aic_best)]
 
 This new estimate avoids problems derived from scale transformation. For example, the intercept (`r plyr::round_any(coefficients(models[[which(aic_values == aic_best)]])[1], 0.001)`) representing the expected fitness of non-inbred individuals is closer to the actual fitness of non-inbred individuals in the pedigree (`r plyr::round_any(dama %>% purgeR::ip_F() %>% dplyr::filter(!is.na(survival15), F==0) %>% .$survival15 %>% mean(), 0.001)`). Similarly, the estimate of the inbreeding depression rate ($B = `r plyr::round_any(coefficients(models[[which(aic_values == aic_best)]])[2], 0.001)`$) and the purging coefficient ($d = `r d_values[which(aic_values == aic_best)]`$) are closer to previously estimated values in this population using PURGd (García-Dorado et al. 2016). Note however, that purgeR accuracy and performance when estimating $d$ is superior to that of PURGd (López-Cortegano 2021).
 
+In the example above, the significance of a purging coefficient estimate higher than zero can be obtained from the relative likelihood between the model estimating $d$ and a model assuming $d=0$, which distributes as a $\chi ^{2}$ statistic:
+
+```{r significance_purging_coefficient}
+# AIC for the model with no purging
+AIC_d0 <-models[[1]] %>% AIC()
+
+# AIC for the best model (d=0.22)
+AIC_best <- models[[which(aic_values == aic_best)]] %>% AIC()
+
+# Chi2 statistic; note that we assume here that the two models only differ in one parameter
+# as the model forcing d=0 does not estimate d, but the other does, and has one degree of freedom less
+# Chi2 <- (AIC(simple model) - 2K(simple model)) - (AIC(complete model) - 2K(complete model))
+Chi2 <- AIC_d0 - AIC_best + 1.0
+
+# Get a p-value from the Chi distribution, using the critical value and one degre of freedom
+pchisq(q=Chi2, df=1, lower.tail=FALSE)
+```
+
+Again, the significance obtained is close to the one previously published, with differences most likely attributed to the slightly different value of $d$ estimated.
+
 ### Estimating the purging coefficient: Bayesian example
 
 Above we have used regression methods to obtain maximum likelihood estimates of different inbreeding and purging parameters, but we could also take a Bayesian approach using R functions, and ask about the posterior distribution of some of these parameters. Below, we focus on the re-estimation of the inbreeding load and the purging coefficient using Approximate Bayesian Computation (ABC). Again, this is intended to provide an example of use, and we warn that the summary statistics used as well as the threshold value have not been extensively tested. A good review on ABC methods and best practices can be found in Beaumont (2010).

@@ -58,33 +58,33 @@
 #' @export
 pop_Nancestors <- function(ped, reference, nboot = 10000L, seed = NULL, skip_Ng = FALSE) {
   check_basic(ped, "id", "dam", "sire")
-  ref <- check_reference(ped, reference, "reference")
+  ref <- check_reference(ped, reference)
   check_int(nboot)
-  if (nboot < 100 || nboot > 100000000) stop("Number of bootstrap iterations expected in the range[100, 100000000]")
+  if (nboot < 100 | nboot > 100000000) stop("Number of bootstrap iterations expected in the range[100, 100000000]", call. = FALSE)
   if (!base::is.null(seed)) check_int(seed)
   check_bool(skip_Ng)
-  rp <- ped[which(ped[reference] == TRUE & !is.na(ped[reference])), ]$id
+  rp <- ped[ped[[reference]] & !is.na(ped[[reference]]), ][["id"]]
   .Call(`_purgeR_ancestors`, ped, ref, rp - 1, nboot, seed, skip_Ng)
 }
 
 #' @export
 pop_Nf <- function(ped, reference) {
-  purgeR::pop_Nancestors(ped, reference, skip_Ng = TRUE)$Nf
+  purgeR::pop_Nancestors(ped, reference, skip_Ng = TRUE)[["Nf"]]
 }
 
 #' @export
 pop_Nfe <- function(ped, reference) {
-  purgeR::pop_Nancestors(ped, reference, skip_Ng = TRUE)$Nfe
+  purgeR::pop_Nancestors(ped, reference, skip_Ng = TRUE)[["Nfe"]]
 }
 
 #' @export
 pop_Na <- function(ped, reference) {
-  purgeR::pop_Nancestors(ped, reference, skip_Ng = TRUE)$Na
+  purgeR::pop_Nancestors(ped, reference, skip_Ng = TRUE)[["Na"]]
 }
 
 #' @export
 pop_Nae <- function(ped, reference) {
-  purgeR::pop_Nancestors(ped, reference, skip_Ng = TRUE)$Nae
+  purgeR::pop_Nancestors(ped, reference, skip_Ng = TRUE)[["Nae"]]
 }
 
 #' @export
