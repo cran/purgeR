@@ -27,8 +27,8 @@ ped_clean <- function(ped, value_from) {
   rm_candidates <- base::sort(rm_candidates, decreasing = TRUE)
   # loop individuals with NA value from youngest to oldest
   for (i in rm_candidates) {
-    offspring_if_dam <-  ped[ped[["dam"]]  == i, "id"]
-    offspring_if_sire <- ped[ped[["sire"]] == i, "id"]
+    offspring_if_dam <-  ped[ped[["dam"]]  == i, ]$id
+    offspring_if_sire <- ped[ped[["sire"]] == i, ]$id
     # if individual with NA value has no offspring, mark for deletion
     if (base::length(offspring_if_dam) == 0 & base::length(offspring_if_sire) == 0) {
       ped <- ped[-i,]

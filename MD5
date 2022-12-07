@@ -1,11 +1,11 @@
-f541b02065859525c0017505a3df1e07 *DESCRIPTION
+8f877aa4852ec70ae498d35c4916fa5f *DESCRIPTION
 b393056106031964d0a294e556dfa818 *NAMESPACE
-6c6761f3bec68471402480416900f1d2 *NEWS.md
+e009bec4feff4c4d32f23435cefba37f *NEWS.md
 7fa0a9b6fd3ea4648e3413a5d5b22cf5 *R/Nancestors.R
 edebdd1e1f9268f278da7b163560dc05 *R/Ne.R
 62f942d271dc38dda1fa03e0f0bdfbb5 *R/RcppExports.R
 4a8b73ba96b78d863ee8be40c6a1402a *R/check.R
-540a0b5cde41c42f6899a72ae74cc33e *R/clean.R
+49dfc65499b583c806efa034b5ee4599 *R/clean.R
 346e88d6e8ee9e774bd659ccf291dd82 *R/data.R
 0596e9762c789a8e13c28b0a6329dbdd *R/expected.R
 dfb91a0b6100cde9086d7c872fbda7df *R/fitness.R
@@ -30,10 +30,10 @@ c031559e03744028582c24e908207c71 *data/datalist
 5cd5953b938571a3548cd8504443f092 *inst/CITATION
 c9d4c91ed80c3684a443a11266be228a *inst/doc/ip.R
 ffd868d71f21dd991f02b926e69e5661 *inst/doc/ip.Rmd
-f36a9490b38375659d87e718c97e3bcd *inst/doc/ip.html
+2a6740e897841de31619153353be732c *inst/doc/ip.html
 2ab18905c5daaa3d8e14f854e30cf4dd *inst/doc/purgeR-tutorial.R
 ae4159a08ac25b6dc4527888fe2ac590 *inst/doc/purgeR-tutorial.Rmd
-5444ee768057d3aafd5bcb6909787cb5 *inst/doc/purgeR-tutorial.html
+f8f781c0903ac1571fe00c99ee2372ee *inst/doc/purgeR-tutorial.html
 1025cd19d319e75a50dbe15a6bfab007 *inst/extdata/arrui_op.rda
 428746397ef970bfe66984b006638c33 *inst/extdata/dama_rv.rda
 75ad4987e8551ff6ef1919b4e57d8709 *inst/extdata/pim.rda
@@ -121,6 +121,6 @@ e40f5e4e30dca9f166be26c97e5f2bcd *tests/testthat/test_fitness.R
 e274338db748e864ac449b8a0e0bacd7 *tests/testthat/test_inbreeding.R
 d5ae9b760e97c7e197b5265c0c6bd0ad *tests/testthat/test_missuse.R
 50f6c95a5aad4507864523b9ff27ad3a *tests/testthat/test_population_parameters.R
-e7ceffe0e46c3633769c5496d51bec87 *tests/testthat/test_preprocessing.R
+ce44bd71adc1987ad8ff03b2bae6d2c8 *tests/testthat/test_preprocessing.R
 ffd868d71f21dd991f02b926e69e5661 *vignettes/ip.Rmd
 ae4159a08ac25b6dc4527888fe2ac590 *vignettes/purgeR-tutorial.Rmd

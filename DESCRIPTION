@@ -1,8 +1,8 @@
 Package: purgeR
 Type: Package
 Title: Inbreeding-Purging Estimation in Pedigreed Populations
-Version: 1.6
-Date: 2022-11-21
+Version: 1.7
+Date: 2022-12-07
 Authors@R: c(
     person("Eugenio", "López-Cortegano", email = "elcortegano@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-6914-6305")))
 Description: Inbreeding-purging analysis of pedigreed populations, including the computation of the inbreeding coefficient, partial, ancestral and purged inbreeding coefficients, and measures of the opportunity of purging related to the individual reduction of inbreeding load.
@@ -26,9 +26,9 @@ RoxygenNote: 7.2.0
 VignetteBuilder: knitr, rmarkdown
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2022-11-21 09:58:44 UTC; elcortegano
+Packaged: 2022-12-07 18:51:09 UTC; elcortegano
 Author: Eugenio López-Cortegano [aut, cre]
     (<https://orcid.org/0000-0001-6914-6305>)
 Maintainer: Eugenio López-Cortegano <elcortegano@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-11-21 12:40:05 UTC
+Date/Publication: 2022-12-07 20:40:02 UTC
