@@ -161,12 +161,13 @@ Fij_core <- function(ped, ancestors, ancestors_idx, Fi, mapa, ncores = 1, genedr
                                    clear = FALSE,
                                    show_after = 0)
 
-  max_ncores <- parallel::detectCores() - 1
+  max_ncores <- parallel::detectCores()
+  if (ncores < 1) stop ("The minimum number of cores is 1", call. = FALSE)
+  else if (ncores > max_ncores) stop(paste("\nIt seems that your system has access up to ", max_ncores, " cores.", sep = ""), call. = FALSE)
+  
   pb$message("Computing partial kinship matrix. This may take a while.")
   pb$tick(0)
-  if (ncores < 1) stop ("The minimum number of cores is 1", call. = FALSE)
-  else if (ncores > max_ncores) stop(paste("It seems that your system has access to ", max_ncores+1, " cores. Use is limited to ", max_ncores , sep = ""), call. = FALSE)
-  else if (ncores == 1) {
+  if (ncores == 1) {
     for (i in 1:M) {
       pb$tick(0)
       map_i <- mapa[, i]

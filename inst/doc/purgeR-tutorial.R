@@ -187,3 +187,19 @@ arrui %>%
   dplyr::filter(id %in% c(317, 380)) %>%
   dplyr::select(id, dam, sire, Fi, Fdam)
 
+## ----igraph-------------------------------------------------------------------
+library("igraph")
+atlas_VE <- purgeR::ped_graph(purgeR::atlas) # we use :: on atlas because igraph has a function named atlas
+G_atlas <- igraph::graph_from_data_frame(d = atlas_VE$edges, vertices = atlas_VE$vertices, directed = TRUE)
+
+## ----ggraph, message=FALSE, warning=FALSE, fig.align = 'center'---------------
+library("ggraph")
+set.seed(1234)
+atlas_VE <- purgeR::atlas %>% purgeR::pop_t() %>% purgeR::ped_graph()
+G_atlas <- igraph::graph_from_data_frame(d = atlas_VE$edges, vertices = atlas_VE$vertices, directed = TRUE)
+
+ggraph(G_atlas, layout = 'dendrogram', circular = TRUE) +
+  geom_edge_diagonal(colour="#222222", alpha = 0.05) +
+  geom_node_point(alpha = 0.5, size = 0.1, pch = 1) +
+  theme(panel.background = element_blank())
+

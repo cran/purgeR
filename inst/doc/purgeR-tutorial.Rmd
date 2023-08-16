@@ -426,6 +426,32 @@ arrui %>%
   dplyr::select(id, dam, sire, Fi, Fdam)
 ```
 
+### igraph input
+
+Some users may be interested in analyse or visualize pedigrees using methods designed for graphs. The [igraph](https://r.igraph.org/) R package is a popular and powerful tool designed to facilitate the analysis and visualization of complex networks and graphs. The function `ped_graph` provides a way to easily convert pedigrees in the format user by purgeR to the dataframes with edges and vertices that igraph requires to create "igraph" objects.
+
+```{r igraph}
+library("igraph")
+atlas_VE <- purgeR::ped_graph(purgeR::atlas) # we use :: on atlas because igraph has a function named atlas
+G_atlas <- igraph::graph_from_data_frame(d = atlas_VE$edges, vertices = atlas_VE$vertices, directed = TRUE)
+```
+
+Both igraph and ggraph R packages provide was to visualize networks (and pedigrees!). Check the example below making use of a hierarchical circlepack visualization to show the substantial differences in pedigree structure between atlas and dorcas gazelles.
+
+```{r ggraph, message=FALSE, warning=FALSE, fig.align = 'center'}
+library("ggraph")
+set.seed(1234)
+atlas_VE <- purgeR::atlas %>% purgeR::pop_t() %>% purgeR::ped_graph()
+G_atlas <- igraph::graph_from_data_frame(d = atlas_VE$edges, vertices = atlas_VE$vertices, directed = TRUE)
+
+ggraph(G_atlas, layout = 'dendrogram', circular = TRUE) +
+  geom_edge_diagonal(colour="#222222", alpha = 0.05) +
+  geom_node_point(alpha = 0.5, size = 0.1, pch = 1) +
+  theme(panel.background = element_blank())
+```
+
+Of course there are other ways of representing pedigrees. For more traditional ways of ploting pedigrees, check the `kinship2` R package.
+
 ## References
 
 - Ballou JD. 1997. Ancestral inbreeding only minimally affects inbreeding depression in mammalian populations. Journal of Heredity 88: 169178.

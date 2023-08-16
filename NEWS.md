@@ -1,3 +1,8 @@
+### purgeR 1.8
+
+- Added `ped_graph()` to convert pedigrees to igraph objects.
+- Removed the restriction to use limited number of cores.
+
 ### purgeR 1.7
 
 - Fix use of `ped_clean()` on tibbles.

@@ -1,8 +1,8 @@
 Package: purgeR
 Type: Package
 Title: Inbreeding-Purging Estimation in Pedigreed Populations
-Version: 1.7
-Date: 2022-12-07
+Version: 1.8
+Date: 2023-08-15
 Authors@R: c(
     person("Eugenio", "López-Cortegano", email = "elcortegano@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-6914-6305")))
 Description: Inbreeding-purging analysis of pedigreed populations, including the computation of the inbreeding coefficient, partial, ancestral and purged inbreeding coefficients, and measures of the opportunity of purging related to the individual reduction of inbreeding load.
@@ -17,18 +17,19 @@ Imports: doSNOW (>= 1.0.19), foreach (>= 1.5.1), parallel, progress (>=
         1.2.2), Rcpp (>= 1.0.5), RcppProgress (>= 0.4.2)
 LinkingTo: Rcpp, RcppProgress
 Suggests: caret (>= 6.0-86), coda (>= 0.19-4), dplyr (>= 1.0.0), e1071
-        (>= 1.7-4), ggplot2 (>= 3.3.1), glmnet (>= 4.0-2), gtable (>=
-        0.3.0), knitr (>= 1.28), magrittr (>= 1.5), pander (>= 0.6.3),
-        plyr (>= 1.8.6), purrr (>= 0.3.4), rmarkdown (>= 2.2), scales
-        (>= 1.1.1), stringr (>= 1.4.0), testthat (>= 2.3.2), tibble (>=
-        3.0.1), tidyr (>= 1.1.0), tidyselect (>= 1.1.0)
-RoxygenNote: 7.2.0
+        (>= 1.7-4), ggplot2 (>= 3.3.1), ggraph (>= 2.1.0), glmnet (>=
+        4.0-2), gtable (>= 0.3.0), igraph (>= 1.5.0.1), knitr (>=
+        1.28), magrittr (>= 1.5), pander (>= 0.6.3), plyr (>= 1.8.6),
+        purrr (>= 0.3.4), rmarkdown (>= 2.2), scales (>= 1.1.1),
+        stringr (>= 1.4.0), testthat (>= 2.3.2), tibble (>= 3.0.1),
+        tidyr (>= 1.1.0), tidyselect (>= 1.1.0)
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr, rmarkdown
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2022-12-07 18:51:09 UTC; elcortegano
+Packaged: 2023-08-15 17:05:50 UTC; elcortegano
 Author: Eugenio López-Cortegano [aut, cre]
     (<https://orcid.org/0000-0001-6914-6305>)
 Maintainer: Eugenio López-Cortegano <elcortegano@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-12-07 20:40:02 UTC
+Date/Publication: 2023-08-16 08:20:02 UTC

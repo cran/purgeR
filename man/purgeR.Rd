@@ -25,36 +25,37 @@ There are currently two vignettes available:
 
 \itemize{
 \item{\strong{Preprocessing}}{
-  \item{\code{\link{ped_rename}} - } Rename individuals in a pedigree from 1 to N
-  \item{\code{\link{ped_sort}} - } Sort individuals (with ancestors on top of descendants)
-  \item{\code{\link{ped_clean}} - } Remove individuals not used for purging analyses
-  \item{\code{\link{ped_maternal}} - }{Maternal effects}
+  \item{\code{\link{ped_rename}} - } Rename individuals in a pedigree from 1 to N  
+  \item{\code{\link{ped_sort}} - } Sort individuals (with ancestors on top of descendants)  
+  \item{\code{\link{ped_clean}} - } Remove individuals not used for purging analyses  
+  \item{\code{\link{ped_maternal}} - }{Maternal effects}  
+  \item{\code{\link{ped_graph}} - }{Input for igraph}
 }
 \item{\strong{Inbreeding and purging}}{
-  \item{\code{\link{ip_F}} - }{Inbreeding coefficient}
-  \item{\code{\link{ip_Fa}} - }{Ancestral inbreeding coefficient}
-  \item{\code{\link{ip_Fij}} - }{Partial inbreeding coefficient}
-  \item{\code{\link{ip_g}} - }{Purged inbreeding coefficient}
-  \item{\code{\link{ip_op}} - }{Opportunity of purging}
-  \item{\code{\link{exp_F}} - }{Expected inbreeding coefficient}
-  \item{\code{\link{exp_Fa}} - }{Expected ancestral inbreeding coefficient}
-  \item{\code{\link{exp_g}} - }{Expected purged inbreeding coefficient}
+  \item{\code{\link{ip_F}} - }{Inbreeding coefficient}  
+  \item{\code{\link{ip_Fa}} - }{Ancestral inbreeding coefficient}  
+  \item{\code{\link{ip_Fij}} - }{Partial inbreeding coefficient}  
+  \item{\code{\link{ip_g}} - }{Purged inbreeding coefficient}  
+  \item{\code{\link{ip_op}} - }{Opportunity of purging}  
+  \item{\code{\link{exp_F}} - }{Expected inbreeding coefficient}  
+  \item{\code{\link{exp_Fa}} - }{Expected ancestral inbreeding coefficient}  
+  \item{\code{\link{exp_g}} - }{Expected purged inbreeding coefficient}  
 }
 \item{\strong{Population parameters}}{
-  \item{\code{\link{pop_hwd}} - }{Deviation from Hardy-Weinberg equilibrium}
-  \item{\code{\link{pop_t}} - }{Number of equivalent complete generations}
-  \item{\code{\link{pop_Ne}} - }{Effective population size}
-  \item{\code{\link{pop_Nancestors}} - }{Population founders and ancestors}
-  \item{\code{\link{pop_Na}} - }{Total number of ancestors}
-  \item{\code{\link{pop_Nae}} - }{Effective number of ancestors}
-  \item{\code{\link{pop_Nf}} - }{Total number of founders}
-  \item{\code{\link{pop_Nfe}} - }{Effective number of founders}
-  \item{\code{\link{pop_Ng}} - }{Number of founder genome equivalents}
+  \item{\code{\link{pop_hwd}} - }{Deviation from Hardy-Weinberg equilibrium}  
+  \item{\code{\link{pop_t}} - }{Number of equivalent complete generations}  
+  \item{\code{\link{pop_Ne}} - }{Effective population size}  
+  \item{\code{\link{pop_Nancestors}} - }{Population founders and ancestors}  
+  \item{\code{\link{pop_Na}} - }{Total number of ancestors}  
+  \item{\code{\link{pop_Nae}} - }{Effective number of ancestors}  
+  \item{\code{\link{pop_Nf}} - }{Total number of founders}  
+  \item{\code{\link{pop_Nfe}} - }{Effective number of founders}  
+  \item{\code{\link{pop_Ng}} - }{Number of founder genome equivalents}  
 }
 \item{\strong{Fitness}}{
-  \item{\code{\link{w_grandoffspring}} - }{Grandoffspring}
-  \item{\code{\link{w_offspring}} - }{Offspring}
-  \item{\code{\link{w_reproductive_value}} - }{Reproductive value}
+  \item{\code{\link{w_grandoffspring}} - }{Grandoffspring}  
+  \item{\code{\link{w_offspring}} - }{Offspring}  
+  \item{\code{\link{w_reproductive_value}} - }{Reproductive value}  
 }
 }
 }
