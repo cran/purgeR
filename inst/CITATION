@@ -4,6 +4,6 @@ bibentry(
   author = "Eugenio López-Cortegano",
   title = "purgeR: Inbreeding and purging in pedigreed populations",
   journal = "Bioinformatics",
-  year = "2021",
+  year = "2022",
   url = "https://doi.org/10.1093/bioinformatics/btab599"
 )

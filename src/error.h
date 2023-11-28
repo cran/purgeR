@@ -9,8 +9,7 @@ inline void print_error (std::string message, std::string value) {
 }
 
 inline void print_warning (std::string message, std::string value) {
-  std::string warning = "Warning! " + message + ": " + value;
-  ::Rf_warning(warning.c_str());
+  ::Rf_warning("Warning! %s: %s", message.c_str(), value.c_str());
 }
 
 const std::string

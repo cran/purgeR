@@ -1,3 +1,12 @@
+### purgeR 1.8.2
+
+- Small fixes in documentation format
+
+### purgeR 1.8.1
+
+- Fix format string print warning functions.
+- Update citation format.
+
 ### purgeR 1.8
 
 - Added `ped_graph()` to convert pedigrees to igraph objects.

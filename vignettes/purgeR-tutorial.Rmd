@@ -256,7 +256,7 @@ arrui %>%
   scale_fill_discrete("")
 ```
 
-The plot shows the increase of the expressed opportunity of purging with the inbreeding coefficient for individuals in the reference population (last two cohorts). For individuals with the lowest inbreeding values, the corrected ($O_{e}$) and uncorrected ($O_{e \_raw}$) have the same value, but as time progresses $O_{e \_raw}$ becomes larger than $O_{e}$. Both values are useful when determining potential reduction in the individual inbreeding load (see more exhaustive examples in López-Cortegano 2021, and the 'Inbreeding and Purging Estimates' vignette).
+The plot shows the increase of the expressed opportunity of purging with the inbreeding coefficient for individuals in the reference population (last two cohorts). For individuals with the lowest inbreeding values, the corrected ($O_{e}$) and uncorrected ($O_{e \_raw}$) have the same value, but as time progresses $O_{e \_raw}$ becomes larger than $O_{e}$. Both values are useful when determining potential reduction in the individual inbreeding load (see more exhaustive examples in López-Cortegano 2022, and the 'Inbreeding and Purging Estimates' vignette).
 
 ## Population parameters
 
@@ -466,7 +466,7 @@ Of course there are other ways of representing pedigrees. For more traditional w
 - Gutiérrez JP et al. 2008. Individual increase in inbreeding allows estimating effective sizes from pedigrees. Genetics Selection Evolution 40: 359-378.
 - Gutiérrez JP et al. 2009. Improving the estimation of realized effective population sizes in farm animals. Journal of Animal Breeding and Genetics 126: 327-332.
 - Hunter DC et al. 2019. Pedigree-based estimation of reproductive value. Journal of Heredity 10(4): 433-444.#
-- López-Cortegano E. 2021. purgeR: Inbreeding and purging in pedigreed populations. Bioinformatics, doi: https://doi.org/10.1093/bioinformatics/btab599.
+- López-Cortegano E. 2022. purgeR: Inbreeding and purging in pedigreed populations. Bioinformatics, doi: https://doi.org/10.1093/bioinformatics/btab599.
 - López-Cortegano E et al. 2018. Detection of genetic purging and predictive value of purging parameters estimated in pedigreed populations. Heredity 121(1): 38-51.
 - López-Cortegano E et al. 2021. Genetic purging in captive endangered ungulates with extremely low effective population sizes. Heredity, https://www.nature.com/articles/s41437-021-00473-2.
 - Moreno E, Espeso G. 2008. International studbook. Cuvier’s gazelle (Gazella cuvieri). Ed. Ayuntamiento Roquetas de Mar-CSIC, Almería-Madrid.

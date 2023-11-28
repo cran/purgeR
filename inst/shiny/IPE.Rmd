@@ -1,0 +1,392 @@
+---
+title: "Inbreeding-Purging Explorer"
+date: "(purgeR v1.8)"
+runtime: shiny
+theme: simplex
+vertical_layout: fill
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    theme: yeti
+    css: styles.css
+    social: menu
+    source_code: embed
+---
+
+```{r setup, include=FALSE}
+library(shiny)
+library(tidyverse)
+library(plotly)
+library(purgeR)
+```
+
+```{r global_variables, include=FALSE}
+DEFAULT_MAXT <- 50
+DEFAULT_S <- 1.0
+DEFAULT_H <- 0.0
+DEFAULT_NE <- 25.0
+DEFAULT_B <- 4.4
+DEFAULT_PED <- "NONE"
+STEP <- 0.01
+
+MAX_T <- 10000
+MAX_S <- 1.0
+MAX_H <- 0.33 # = 1/3 but precision must match STEP value
+MAX_NE <- 1000
+MAX_D <- 0.5
+MAX_B <- 20.0
+
+MIN_T <- 0.0
+MIN_S <- 0.0
+MIN_H <- 0.0
+MIN_NE <- 0.0
+MIN_D <- 0.0
+MIN_B <- 0.0
+
+ERROR_UNK <- "Unexpected error. Please contact the developer."
+
+# Plot Parameters
+AXIS_TITLE_SIZE <- 15
+AXIS_TEXT_SIZE <- 10
+```
+
+```{r load_functions, include=FALSE}
+base::source("utils.R")
+```
+
+Sidebar {.sidebar}
+======================================================================
+
+**Main parameters**
+
+```{r parameters, echo = FALSE}
+numericInput("Ne", label = "Effective population size (Ne)", value = DEFAULT_NE, min = MIN_NE, max = MAX_NE, step = 0.0001)
+
+sliderInput("s", label = "Selection coefficient (s)", min = MIN_S, max = MAX_S, value = DEFAULT_S, step = STEP)
+
+sliderInput("h", label = "Dominance degree (h)", min = MIN_H, max = MAX_H, value = DEFAULT_H, step = STEP)
+```
+
+**Input file**
+
+```{r input, echo = FALSE}
+fileInput("pedigree",
+          label = "Pedigree (*.tsv, *.csv)",
+          accept = c(".csv", ".tsv"),
+          multiple = FALSE)
+
+```
+
+**Other options**
+
+```{r options, echo = FALSE}
+numericInput("maxt", label = "Generations to plot", value = DEFAULT_MAXT, min = MIN_T, max = MAX_T, step = 1)
+
+numericInput("B", label = "Inbreeding load (B)", value = DEFAULT_B, min = MIN_B, max = MAX_B, step = STEP)
+```
+
+About
+============================================================================
+
+#### IP Explorer
+
+Inbreeding-Purging (IP) Explorer is a R Shiny application designed to visualize the expected change in IP parameters such as inbreeding coefficients and the inbreeding load in populations, by means of an interactive graphical interface. It is built as part of the R package [purgeR](https://gitlab.com/elcortegano/purgeR) ([López-Cortegano 2021](https://doi.org/10.1093/bioinformatics/btab599)), and most of the methods and IP models used here are described in [purgeR documentation](https://cran.r-project.org/web/packages/purgeR/vignettes/purgeR-tutorial.html). All panels in the application show the critical time for purging $t_{c}=\sqrt{2N/s(1-3h)}$ (López-Cortegano and Charlesworth, in prep), indicating the time point when purging is expected to become substantial and detectable.
+
+----------------------------------------------------------------------------
+
+#### How to use this application
+
+Use the left panel to set parameters, and navigate the tabs on the top of the application interface to explore expectations on Inbreeding and Purging.
+
+The main parameter to configure is the effective population size ($N_{e}$). It can be calculated in advance from the pedigree in R using purgeR:
+
+
+    library("tidyverse")
+    library("purgeR")
+    read_tsv("my_pedigree.tsv") %>% ped_rename() %>% ip_F() %>% pop_t() %>% pop_Ne()
+
+If you want to input your own pedigree into IP Explorer, the pedigree will need to be in the [input format](https://cran.r-project.org/web/packages/purgeR/vignettes/purgeR-tutorial.html) required by purgeR, and include a numeric column named "t" to indicate the generation number (this column can be calculated with `purgeR::pop_t()`). Fitness can also be shown if the pedigree includes a column named "W" with values in the range [0, 1].
+
+**Inbreeding**
+
+Plot the expected standard ($F$; Wright 1922), ancestral ($F_{a}$; Ballou 1997) and purged ($g$; García-Dorado et al. 2016) inbreeding coefficients. Apart from $N_{e}$, calculating $g$ also needs to input an purging coefficient ($d$). Since $d=0.5s(1-2h)$, it could be manually configured setting $h=0$ and $s=2d$ in the left panel. Inbreeding coefficients can also be calculated for an input pedigree file.
+
+**Purging**
+
+Contains two panels, showing the expected decline in inbreeding load ($B$) under purging, and the consequent fitness change ($W$).
+
+* Inbreeding load: plots the expected decline in $B$ following Equation X in REF, where $B_{0}$ can be set in the left panel as the initial value of $B$:
+
+$$B_{t} = B_{0} \prod_{i=0}^{t} \{1-s[h+(1-3h)F_{i}]\}$$
+
+* Fitness: plots the expected change in $W$ under some of the IP models used in REF. IP~ID~ shows the expectation of inbreeding depression without purging. IP~B~ shows under purging, derived from Equation X from REF:
+
+$$\Delta W_{t} = - B_{t}(\frac{1}{1-2h})\{-s[h+(1-3h)F_{t}]\}[2h + (1-2h)F_{t}] - B_{t}\Delta F_{t}$$
+<!--identation-->
+\ \ \ \ \ \ \ \ \ \ These models assume that $W_{0}=1$. If a pedigree is loaded, the mean $W$ and its standard deviation will be shown for binomial fitness, and a boxplot otherwise.
+
+----------------------------------------------------------------------------
+
+#### Citation
+
+Please cite the following articles in your research if you use:
+
+**purgeR**:
+
+- López-Cortegano E. (2021). purgeR: Inbreeding and purging in pedigreed populations. Bioinformatics: https://doi.org/10.1093/bioinformatics/btab599
+
+**Critical number of generations to purging**:
+
+- López-Cortegano E, Charlesworth B. Estimation of the purged inbreeding load and the critical number of generations for genetic purging to manifest. (in prep)
+
+----------------------------------------------------------------------------
+
+#### Other references
+
+- Ballou JD. (1997). Ancestral inbreeding only minimally affects inbreeding depression in mammalian populations. Journal of Heredity: https://doi.org/10.1093/oxfordjournals.jhered.a023085
+
+- García-Dorado A, et al. (2016). Predictive model and software for inbreeding-purging analysis of pedigreed populations. G3: https://doi.org/10.1534/g3.116.032425
+
+- Wright S. (1922). Coefficients of inbreeding and relationship. The American Naturalist 56: 330-338.
+
+Inbreeding
+======================================================================
+
+```{r reactive_inbreeding, echo=FALSE}
+
+# Errors
+rerrors_inbreeding <- reactive ({
+  if (is.null(input$Ne) | is.na(input$Ne) | input$Ne == "") stop (shiny::safeError("Please introduce a valid effective population size"))
+  else if (is.null(input$maxt) | is.na(input$maxt) | input$maxt == "") stop (shiny::safeError("Please introduce a valid number of generations"))
+  else if (is.null(input$B) | is.na(input$B) | input$B == "") stop (shiny::safeError("Please introduce a valid inbreeding load value"))
+  else if (input$Ne <= MIN_NE) stop (shiny::safeError(paste("Effective size must be higher than ", MIN_NE, sep = "")))
+  else if (input$Ne > MAX_NE) stop (shiny::safeError(paste("Maximum effective size allowed is Ne = ", MAX_NE, sep = "")))
+  else if (input$B <= MIN_B) stop(shiny::safeError(paste("Inbreeding load must be higher than ", MIN_B, sep = "")))
+  else if (input$B > MAX_B) stop (shiny::safeError(paste("Maximum inbreeding load allowed is B = ", MAX_B, sep = "")))
+  else if (input$maxt <= MIN_T) stop(shiny::safeError(paste("Number of generations must be higher than ", MIN_T, sep = "")))
+  else if (input$maxt > MAX_T) stop (shiny::safeError(paste("Maximum number of generations allowed is allowed is t = ", MAX_T, sep = "")))
+})
+
+# Observed dataset (observed fitness can be updated)
+rdata_inbreeding <- reactive({
+
+  # Return
+  if (is.null(input$pedigree)) ped <- data.frame()
+  else if (str_detect(input$pedigree$name, ".tsv$")) ped <- readr::read_tsv(input$pedigree$datapath) %>% purgeR::ped_rename()
+  else if (str_detect(input$pedigree$name, ".csv$")) ped <- readr::read_csv(input$pedigree$datapath) %>% purgeR::ped_rename()
+  else stop (shiny::safeError(ERROR_UNK))
+
+  if (!is.null(input$pedigree)) {
+    if (!"t" %in% colnames(ped)) stop (shiny::safeError(paste("Missing column 't' for generations in file ", input$pedigree$name, sep = "")))
+    else if (input$pedigree$size > 1073741824) stop (shiny::safeError("Input file larger than 1 GB. Please reduce it"))
+    else if (max(ped[["t"]]) > MAX_T) stop (shiny::safeError(paste("Maximum number of generations allowed is t = ", MAX_T, sep = "")))
+    else if (nrow(ped) > MAX_NE*MAX_T) stop (shiny::safeError(paste("Maximum number of individuals allowed is", as.integer(MAX_NE*MAX_T), "", sep = "")))
+    else if (!is.numeric(ped[["t"]])) stop(shiny::safeError(paste("Column 't' is not numeric. Check file ", input$pedigree$name, sep = "")))
+    else if (any(ped[["t"]] < 0.0)) stop(shiny::safeError(paste("Found negative generation numbers (t) in file ", input$pedigree$name, sep = "")))
+  }
+  return(ped)
+})
+
+# Purging coefficient
+rexp_d <- reactive({
+  d <- 0.5*input$s*(1.0 - 2.0*input$h)
+  d
+})
+
+# Critical time expectations
+rtc_inbreeding <- reactive({
+  tc <- sqrt((2*input$Ne)/(input$s*(1.0-3.0*input$h)))
+  tc
+})
+
+# Expected inbreeding
+rexp_inbreeding <- reactive({
+  exp_inbreeding <- tibble::tibble(t = 0:input$maxt) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(Fi = purgeR::exp_F(Ne = input$Ne, t = t),
+                  Fa = purgeR::exp_Fa(Ne = input$Ne, t = t),
+                  g = purgeR::exp_g(Ne = input$Ne, t = t, d = rexp_d())) %>% 
+    dplyr::ungroup() %>% # remove rowwise grouping 
+    dplyr::mutate(Fl = dplyr::lag(Fi, 1, default = 0),
+                  cF = 1-input$s*(input$h+(1-3*input$h)*Fi),
+                  cF = cumprod(cF),
+                  EB = input$B*cF) %>%
+    tidyr::pivot_longer(cols = c("Fi", "Fa", "g"), names_to = "model", values_to = "coefficient") %>% 
+    dplyr::mutate(model = ifelse(model == "Fi", "F", model))
+
+  return(exp_inbreeding)
+})
+```
+
+Row
+-----------------------------------------------------------------------
+
+### **Expected inbreeding**. Three models are assumed: standard (*F*), ancestral (*Fa*) and purged (*g*).
+
+```{r echo = FALSE}
+shiny::uiOutput("expInbreeding")
+
+output$expInbreeding <- shiny::renderUI({
+  plotly::plotlyOutput("plot_expInbreeding")
+})
+
+output$plot_expInbreeding <- plotly::renderPlotly({
+
+  rerrors_inbreeding()
+  tc <- rtc_inbreeding()
+  exp <- rexp_inbreeding()
+
+  # Plot
+  t_breaks <- seq(0, max(exp$t), ifelse(max(exp$t)/10 > 0.5, plyr::round_any(max(exp$t)/10, 1), 1))
+  P <- ggplot() +
+    geom_vline(xintercept = tc, linetype = "dashed", size = 0.5) +
+    geom_line(data = exp, aes(x = t, y = coefficient, color = model, group = model), size = 1) +
+    #geom_vline(data = tc, aes(xintercept = values, color = model), size = 1.5, alpha = 0.9) +
+    scale_y_continuous("Inbreeding", limits = c(0.0, 1.0)) +
+    scale_x_continuous("Generations (t)", breaks = t_breaks) +
+    scale_color_manual("Model", values = c("#E69F00", "#56B4E9", "#009E73"), breaks = c("Fa", "F", "g")) +
+    theme_minimal() +
+    theme (axis.line = element_line(size = 1),
+           axis.title = element_text(size = AXIS_TITLE_SIZE),
+           axis.text = element_text (size = AXIS_TEXT_SIZE),
+           legend.title = element_text(size = AXIS_TITLE_SIZE),
+           legend.text = element_text(size = AXIS_TITLE_SIZE),
+           legend.position = "right")
+  
+  if (!is.null(input$pedigree)) {
+    inbreeding <- rdata_inbreeding()
+    inbreeding <- inbreeding %>% dplyr::mutate(t = plyr::round_any(t, 1)) %>% 
+      purgeR::ip_F() %>% 
+      purgeR::ip_Fa() %>% 
+      purgeR::ip_g(d = rexp_d(), name_to = "g") %>% 
+      tidyr::pivot_longer(cols = c("Fi", "Fa", "g"), names_to = "model", values_to = "coefficient") %>% 
+      dplyr::mutate(t = factor(t),
+                    model = ifelse(model == "Fi", "F", model))
+      
+    P <- P + geom_boxplot(data = inbreeding, aes(x = t, y = coefficient, fill = model), position = position_dodge()) +
+      scale_fill_manual("Model", values = c("#E69F00", "#56B4E9", "#009E73"), breaks = c("Fa", "F", "g")) +
+      guides("fill" = NULL)
+  }
+
+  # Reactive plot
+  plotly::ggplotly(P, tooltip = c("x", "y", "color")) %>%
+    add_annotations(x = tc, y = 0, font = list(size = 20), text = "<i>t<sub>c</sub></i><br>        ", showarrow = FALSE, align = "right") %>% 
+    plotly::layout(boxmode = "group")
+})
+```
+
+Purging
+============================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### **Expected inbreeding load**. Decline in the inbreeding load (B) as a consequence of purging. 
+
+```{r echo = FALSE}
+shiny::uiOutput("expB")
+
+output$expB <- shiny::renderUI({
+  plotly::plotlyOutput("plot_expB")
+})
+
+output$plot_expB <- plotly::renderPlotly({
+
+  rerrors_inbreeding()
+  exp <- rexp_inbreeding() %>%
+    dplyr::filter(model == "F") %>% 
+    dplyr::rename(B = EB)
+  tc <- rtc_inbreeding()
+  EB_tc <- exp %>% dplyr::filter(t == plyr::round_any(tc, 1)) %>% .$B %>% unique()
+
+  # Plot
+  t_breaks <- seq(0, max(exp$t), ifelse(max(exp$t)/10 > 0.5, plyr::round_any(max(exp$t)/10, 1), 1))
+  P <- ggplot() +
+    geom_vline(xintercept = tc, linetype = "dashed", size = 0.5) +
+    geom_point(data = exp, aes(x = t, y = B, color = B), size = 4) +
+    scale_y_continuous("Inbreeding load (B)", limits = c(0, input$B)) +
+    scale_x_continuous("Generations (t)", breaks = t_breaks) +
+    scale_color_gradient2("B", low = "#0072B2", high = "red", midpoint = EB_tc, mid = "#F0E442", space = "Lab") +
+    guides("color" = NULL, "fill" = NULL) +
+    theme_minimal() +
+    theme (axis.line = element_line(size = 1),
+           axis.title = element_text(size = AXIS_TITLE_SIZE),
+           axis.text = element_text (size = AXIS_TEXT_SIZE),
+           legend.title = element_text(size = AXIS_TITLE_SIZE),
+           legend.text = element_text(size = AXIS_TEXT_SIZE),
+           legend.position = "right")
+
+  # Reactive plot
+  plotly::ggplotly(P, tooltip = c("x", "y")) %>%
+    add_annotations(x = tc, y = 0, font = list(size = 20), text = "<i>t<sub>c</sub></i><br>        ", showarrow = FALSE, align = "right") %>% 
+    plotly::layout()
+})
+```
+
+
+Row
+-----------------------------------------------------------------------
+
+### **Expected fitness**. Two models are assumed: inbreeding depression (IP~ID~), and purging predicted from inbreeding load decline (IP~B~). 
+
+```{r echo = FALSE, warning = FALSE}
+shiny::uiOutput("expW")
+
+output$expW <- shiny::renderUI({
+  plotly::plotlyOutput("plot_expW")
+})
+
+output$plot_expW <- plotly::renderPlotly({
+
+  rerrors_inbreeding()
+  tc <- rtc_inbreeding()
+  exp <- rexp_inbreeding()
+  expF <- dplyr::filter(exp, model == "F")
+
+  # Plot
+  #<!--rename labeld-->
+  t_breaks <- seq(0, max(exp$t), ifelse(max(exp$t)/10 > 0.5, plyr::round_any(max(exp$t)/10, 1), 1))
+  exp <- exp %>%
+    dplyr::filter(model != "Fa") %>% 
+    dplyr::mutate(W = 1.0 * exp(-input$B*coefficient),
+                  model = ifelse(model == "F", "IP(D)", model),
+                  model = ifelse(model == "g", "IP(B)", model))
+  P <- ggplot() +
+    geom_vline(xintercept = tc, linetype = "dashed", size = 0.5) +
+    geom_line(data = exp, aes(x = t, y = W, color = model), size = 1) +
+    scale_y_continuous("Fitness (W)") +
+    scale_x_continuous("Generations (t)", breaks = t_breaks) +
+    scale_color_manual("Model", values = c("#56B4E9", "#009E73"), breaks = c("IP(D)", "IP(B)")) +
+    theme_minimal() +
+    theme (axis.line = element_line(size = 1),
+           axis.title = element_text(size = AXIS_TITLE_SIZE),
+           axis.text = element_text (size = AXIS_TEXT_SIZE),
+           legend.title = element_text(size = AXIS_TITLE_SIZE),
+           legend.text = element_text(size = AXIS_TEXT_SIZE),
+           legend.position = "right")
+
+  if (!is.null(input$pedigree)) {
+    inbreeding <- rdata_inbreeding() %>% 
+      dplyr::mutate(t = plyr::round_any(t, 1))
+    if (!"W" %in% colnames(inbreeding)) stop (shiny::safeError(paste("Missing column 'W' for fitness in file ", input$pedigree$name, sep = "")))
+    W <- inbreeding[["W"]]
+    #if (max(W) > 1 | min(W) < 0) stop (shiny::safeError(paste("Column 'W' is out of range in file ", input$pedigree$name, sep = "")))
+    Wunique <- W[!is.na(W)] %>% sort() %>% unique()
+    if (length(Wunique) == 2 & all(Wunique == c(0, 1))) {
+      inbreeding <- inbreeding %>%
+        dplyr::group_by(t) %>% 
+        dplyr::summarise(W = mean(W, na.rm = TRUE), Wsd = W*(1-W), Wh = W+Wsd, Wl = W-Wsd)
+      P <- P + geom_point(data = inbreeding, aes(x = t, y = W), size = 3, color = "red") +
+        geom_point(data = inbreeding, aes(x = t, y = Wh), size = 1, color = "red") +
+        geom_point(data = inbreeding, aes(x = t, y = Wl), size = 1, color = "red")
+    } else {
+       P <- P + geom_boxplot(data = inbreeding, aes(x = t, y = W), size = 1, color = "red")
+    }
+  }
+  
+  # Reactive plot
+  plotly::ggplotly(P, tooltip = c("x", "y", "color")) %>%
+    add_annotations(x = tc, y = min(exp[["W"]]), font = list(size = 20), text = "<i>t<sub>c</sub></i><br>        ", showarrow = FALSE, align = "right") %>% 
+    plotly::layout()
+})
+```
